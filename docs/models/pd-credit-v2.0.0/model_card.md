@@ -2,7 +2,7 @@
 document_type: model_card
 title: Model Card
 model_version: pd-credit-v2.0.0
-model_uuid: 786e09bb-c0b5-4c69-8879-7e91dbf0d53b
+model_uuid: 9e190d7a-3857-4505-9eaf-12ce56b78392
 status: complete
 template_version: 1
 ---
@@ -11,10 +11,10 @@ template_version: 1
 
 ## Model name and version
 
-- Name: ModelGuard PD model (`pd-credit-v2.0.0`), immutable UUID `786e09bb-c0b5-4c69-8879-7e91dbf0d53b`
+- Name: ModelGuard PD model (`pd-credit-v2.0.0`), immutable UUID `9e190d7a-3857-4505-9eaf-12ce56b78392`
 - Registered model type: **champion** (HistGradientBoostingClassifier)
-- Training run: `1d4f5f96-2042-4b88-a0e8-00bfc8c4f59d`; git SHA `1212309913c8b3238a23207c935edb232e49d00d`
-- Created: 2026-09-22T06:42:38
+- Training run: `f677b88d-8b91-4d9f-b185-9a636612407d`; git SHA `0b510b485340fee81956c188d9e3c6e9d20b3166`
+- Created: 2026-09-22T06:44:08
 
 ## Business purpose and intended use
 
@@ -28,7 +28,7 @@ Credit decisions, pricing, collections prioritisation, any real borrower, and an
 
 - Source: `uci-credit-default-2005` — UCI 350 - Default of Credit Card Clients (Yeh & Lien, 2009) (license: https://creativecommons.org/licenses/by/4.0/, retrieved 2026-09-22)
 - Snapshot as-of 2005-09-30, 30000 rows, SHA-256 `30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933`
-- Lineage: source `uci-credit-default-2005` → snapshot `e90c5cef-c2e4-44a5-94ca-f6e6c0698c2e` → training run `1d4f5f96-2042-4b88-a0e8-00bfc8c4f59d` → model version `pd-credit-v2.0.0`
+- Lineage: source `uci-credit-default-2005` → snapshot `45392542-c9e2-4883-8d0c-a213c2efe8eb` → training run `f677b88d-8b91-4d9f-b185-9a636612407d` → model version `pd-credit-v2.0.0`
 
 ## Target definition and modeling approach
 

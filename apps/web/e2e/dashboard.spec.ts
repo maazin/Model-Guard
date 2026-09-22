@@ -29,6 +29,6 @@ test("the purpose page explains the project in plain language", async ({ page })
   await expect(page.getByRole("heading", { name: "Why this exists" })).toBeVisible();
   await expect(page.getByText("The problem")).toBeVisible();
   await expect(page.getByText("What it is not")).toBeVisible();
-  await page.getByRole("link", { name: "all models" }).click();
+  await page.getByRole("link", { name: "all models", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Credit-risk models" })).toBeVisible();
 });

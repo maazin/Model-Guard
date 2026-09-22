@@ -2,7 +2,7 @@
 document_type: model_card
 title: Model Card
 model_version: pd-credit-v1.2.0
-model_uuid: 58ae9bcb-0b07-44b6-a182-5baaf95ebc30
+model_uuid: 05084e17-0a81-49ae-ba2a-bad7d74f6702
 status: draft
 template_version: 1
 ---
@@ -11,10 +11,10 @@ template_version: 1
 
 ## Model name and version
 
-- Name: ModelGuard PD model (`pd-credit-v1.2.0`), immutable UUID `58ae9bcb-0b07-44b6-a182-5baaf95ebc30`
+- Name: ModelGuard PD model (`pd-credit-v1.2.0`), immutable UUID `05084e17-0a81-49ae-ba2a-bad7d74f6702`
 - Registered model type: **baseline** (LogisticRegression (L2))
-- Training run: `7ec9c218-7a1d-4cf6-bf45-5a168e404f59`; git SHA `1212309913c8b3238a23207c935edb232e49d00d`
-- Created: 2026-09-22T06:42:31
+- Training run: `48c775d6-442a-4221-b122-a26d69e4dbbf`; git SHA `0b510b485340fee81956c188d9e3c6e9d20b3166`
+- Created: 2026-09-22T06:43:58
 
 ## Business purpose and intended use
 
@@ -28,7 +28,7 @@ TODO
 
 - Source: `synthetic-loans-v1` — ModelGuard synthetic loan-performance fixture (license: https://opensource.org/license/mit, retrieved 2026-09-22)
 - Snapshot as-of 2023-12-31, 6000 rows, SHA-256 `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`
-- Lineage: source `synthetic-loans-v1` → snapshot `1fe0c27b-7726-4598-a915-5b96120dcd6f` → training run `7ec9c218-7a1d-4cf6-bf45-5a168e404f59` → model version `pd-credit-v1.2.0`
+- Lineage: source `synthetic-loans-v1` → snapshot `38e32a46-1556-41e2-8844-b0b5a9a8ef73` → training run `48c775d6-442a-4221-b122-a26d69e4dbbf` → model version `pd-credit-v1.2.0`
 
 ## Target definition and modeling approach
 
