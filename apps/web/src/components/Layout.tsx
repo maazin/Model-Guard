@@ -26,6 +26,7 @@ const TABS: [string, string][] = [
   ["/validation", "Model quality"],
   ["/monitoring", "Monitoring"],
   ["/governance", "Approval"],
+  ["/simulator", "Try the cut-off"],
 ];
 
 export function Layout() {

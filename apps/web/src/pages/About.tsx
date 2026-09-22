@@ -56,6 +56,7 @@ export function About() {
               refuse it. The fourth, <Link className="underline" to="/versions/pd-credit-v2.0.0/executive">pd-credit-v2.0.0</Link>, was built on a real, openly licensed public dataset of 30,000 credit-card accounts.
             </p>
             <p>Try it: pick a model at the top, switch <em>View as</em> to “Model risk reviewer”, open <em>Approval</em>, and approve or reject the version that is waiting. Then look at the audit log on <em>Details</em>.</p>
+            <p>Or play with the numbers: <Link className="underline" to="/versions/pd-credit-v2.0.0/simulator">try the cut-off</Link> on the real-data model and see how many defaulters you avoid, how many good customers you turn away, and what it costs.</p>
             <p className="muted">Every technical term on the site is shown in everyday words with the technical name beside it, and each page ends with an explanation of how the two connect.</p>
           </div>
         </Card>

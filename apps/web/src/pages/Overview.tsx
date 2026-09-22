@@ -66,7 +66,7 @@ export function Overview() {
             <div className="mt-4 flex flex-wrap gap-2">
               <Link className="btn btn-primary" to={`/versions/${v.model_version}/executive`}>Read the summary</Link>
               <Link className="btn" to={`/versions/${v.model_version}/governance`}>Approval &amp; evidence</Link>
-              <Link className="btn" to={`/versions/${v.model_version}/monitoring`}>Monitoring</Link>
+              <Link className="btn" to={`/versions/${v.model_version}/simulator`}>Try the cut-off</Link>
             </div>
           </Card>
         ))}

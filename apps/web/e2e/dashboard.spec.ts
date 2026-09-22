@@ -32,3 +32,13 @@ test("the purpose page explains the project in plain language", async ({ page })
   await page.getByRole("link", { name: "all models", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Credit-risk models" })).toBeVisible();
 });
+
+test("the cut-off simulator recomputes when the slider moves", async ({ page }) => {
+  await page.goto("/versions/pd-credit-v2.0.0/simulator");
+  await expect(page.getByTestId("simulator")).toBeVisible();
+  const before = await page.getByTestId("pnl").innerText();
+  await page.getByTestId("cutoff").fill("0.9");
+  await expect(page.getByTestId("pnl")).not.toHaveText(before);
+  await expect(page.getByText("Approve everyone (no model)")).toBeVisible();
+  expect(await page.locator("main").innerText()).not.toMatch(/\bln_[0-9a-f]{12}\b/);
+});

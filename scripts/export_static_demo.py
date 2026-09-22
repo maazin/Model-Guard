@@ -48,6 +48,9 @@ def main() -> None:
             write(f"/model-versions/{ident}/monitoring", get(f"/model-versions/{sv}/monitoring"))
             write(f"/executive-summary/{ident}", get(f"/executive-summary/{sv}"))
             write(f"/model-versions/{ident}/readiness", get(f"/model-versions/{sv}/readiness"))
+            sim = client.get(f"/api/v1/model-versions/{sv}/simulator")
+            if sim.status_code == 200:
+                write(f"/model-versions/{ident}/simulator", sim.json())
             for dt in DocumentType:
                 write(
                     f"/model-versions/{ident}/documents/{dt.value}", get(f"/model-versions/{sv}/documents/{dt.value}")

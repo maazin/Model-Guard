@@ -122,7 +122,7 @@ All numbers below are read from the seeded database by `make executive-pack` / `
 | Monitoring | 3 batches; 8 induced alerts (4 high, 4 medium): PSI on `debt_to_income` 1.27, `interest_rate` 3.43, `employment_length` 0.35, score PSI 1.41; 1 resolved, 1 investigating |
 | Audit | 189 hash-chained events on the full seed; chain verifies |
 | Copilot | rule-based provider scores **8/8 (100%)** on the hand-authored completeness set (`tests/fixtures/copilot_eval.json`); hosted providers not measured (no key in CI) |
-| Tests | 119 pytest (99 unit incl. the copilot eval and UCI adapter tests + 20 integration; 1 hosted-provider eval skipped without a key) + 6 Playwright e2e; **93% line coverage** overall (lifecycle and audit modules 100%) |
+| Tests | 120 pytest (99 unit incl. the copilot eval and UCI adapter tests + 21 integration; 1 hosted-provider eval skipped without a key) + 7 Playwright e2e; **93% line coverage** overall (lifecycle and audit modules 100%) |
 | Latency (local SQLite, p50 / p95) | version detail 7 / 9 ms · monitoring 8 / 8 ms · executive summary 38 / 40 ms · copilot query 51 / 65 ms · portfolio 107 / 198 ms (re-runs the readiness engine incl. secrets scan) |
 | Dashboard load (Vite dev, network idle) | 0.6–0.9 s per page |
 

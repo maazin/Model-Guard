@@ -11,6 +11,7 @@ import { Monitoring } from "./pages/Monitoring";
 import { Governance } from "./pages/Governance";
 import { Executive } from "./pages/Executive";
 import { About } from "./pages/About";
+import { Simulator } from "./pages/Simulator";
 
 // Restore a deep link stashed by public/404.html (GitHub Pages SPA fallback).
 try {
@@ -38,6 +39,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/versions/:id/monitoring" element={<Monitoring />} />
             <Route path="/versions/:id/governance" element={<Governance />} />
             <Route path="/versions/:id/executive" element={<Executive />} />
+            <Route path="/versions/:id/simulator" element={<Simulator />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -244,3 +244,15 @@ def test_retire_requires_reason_and_reviewer(client, ds, reviewer, version):
         f"/api/v1/model-versions/{version['id']}/retire", json={"reason": "superseded by v9.1.0"}, headers=reviewer
     )
     assert r.status_code == 200 and r.json()["state"] == "RETIRED"
+
+
+def test_simulator_exposes_scores_without_identifiers(client, ds, version):
+    r = client.get(f"/api/v1/model-versions/{version['id']}/simulator", headers=ds)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["n"] == len(body["score"]) == len(body["outcome"]) > 100
+    assert set(body["outcome"]) <= {0, 1} and all(0 <= s <= 1 for s in body["score"])
+    assert body["group_field"] == "fairness_group" and len(body["group"]) == body["n"]
+    assert "loan_id" not in r.text and "ln_" not in r.text
+    detail = client.get(f"/api/v1/model-versions/{version['id']}", headers=ds).json()
+    assert "holdout_predictions" not in detail["artifacts"]

@@ -49,6 +49,7 @@ def detail(ident: str, db: Session = Depends(get_db), _: User = Depends(current_
         "artifacts": {
             a.name: a.payload_json
             for a in db.scalars(select(ValidationArtifact).where(ValidationArtifact.model_version_id == mv.id))
+            if a.name != "holdout_predictions"
         },
         "documents": docsvc.get_documents(db, mv),
         "controls": registry.get_controls(db, mv),
@@ -63,6 +64,34 @@ def detail(ident: str, db: Session = Depends(get_db), _: User = Depends(current_
         "alerts": monitoring.alerts_for(db, mv),
         "audit_events": audit.list_events(db, entity_id=mv.id),
         "narrative": mv.narrative_json or {},
+    }
+
+
+@router.get("/{ident}/simulator")
+def simulator(ident: str, db: Session = Depends(get_db), _: User = Depends(current_user)):
+    """Held-out predictions for the cut-off simulator: score, outcome and diagnostic group only. No identifiers."""
+    mv = registry.get_version(db, ident)
+    art = db.scalar(
+        select(ValidationArtifact).where(
+            ValidationArtifact.model_version_id == mv.id, ValidationArtifact.name == "holdout_predictions"
+        )
+    )
+    if art is None:
+        raise not_found("simulator data (run validation first)", ident)
+    cfg = mv.training_run.config_json or {}
+    metrics = mv.training_run.metrics_json.get(mv.model_type, {}).get("metrics", {})
+    pred = art.payload_json
+    return {
+        "model_version": mv.semantic_version,
+        "state": mv.state,
+        "illustrative_threshold": cfg.get("illustrative_threshold"),
+        "group_field": (cfg.get("feature_spec") or {}).get("fairness_field"),
+        "auc": metrics.get("auc", {}).get("value"),
+        "n": len(pred.get("score", [])),
+        "score": pred.get("score", []),
+        "outcome": pred.get("outcome", []),
+        "group": pred.get("group", []),
+        "source_id": mv.training_run.snapshot.source_id,
     }
 
 

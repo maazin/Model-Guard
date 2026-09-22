@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Any
 
 from modelguard_governance.documents import DocumentType, missing_sections
@@ -241,6 +243,9 @@ def validate_version(db: Session, mv: ModelVersion, user: User) -> ModelVersion:
         "baseline_distributions": run.baseline_distributions_json,
         "comparator": {k: v["metrics"] for k, v in evals.items()},
     }
+    pred_path = (run.artifacts_json or {}).get("holdout_predictions")
+    if pred_path and Path(pred_path).exists():
+        artifacts["holdout_predictions"] = json.loads(Path(pred_path).read_text()).get(mv.model_type, {})
     db.query(ValidationArtifact).filter(ValidationArtifact.model_version_id == mv.id).delete()
     for name, payload in artifacts.items():
         if payload is not None:

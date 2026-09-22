@@ -2,7 +2,7 @@
 document_type: model_card
 title: Model Card
 model_version: pd-credit-v1.1.0
-model_uuid: 7850eb94-3306-4192-aadc-f05919d261a7
+model_uuid: 68c952e3-70fb-4be6-acb7-cbb55838aecf
 status: complete
 template_version: 1
 ---
@@ -11,10 +11,10 @@ template_version: 1
 
 ## Model name and version
 
-- Name: ModelGuard PD model (`pd-credit-v1.1.0`), immutable UUID `7850eb94-3306-4192-aadc-f05919d261a7`
+- Name: ModelGuard PD model (`pd-credit-v1.1.0`), immutable UUID `68c952e3-70fb-4be6-acb7-cbb55838aecf`
 - Registered model type: **champion** (HistGradientBoostingClassifier)
-- Training run: `48c775d6-442a-4221-b122-a26d69e4dbbf`; git SHA `0b510b485340fee81956c188d9e3c6e9d20b3166`
-- Created: 2026-09-22T06:43:58
+- Training run: `4d36e015-e397-42fa-b05a-5df92521337b`; git SHA `0346788e76e844393773b49137f6dddef8196a47`
+- Created: 2026-09-22T06:53:17
 
 ## Business purpose and intended use
 
@@ -28,7 +28,7 @@ Credit decisions, pricing, collections prioritisation, any real borrower, and an
 
 - Source: `synthetic-loans-v1` — ModelGuard synthetic loan-performance fixture (license: https://opensource.org/license/mit, retrieved 2026-09-22)
 - Snapshot as-of 2023-12-31, 6000 rows, SHA-256 `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`
-- Lineage: source `synthetic-loans-v1` → snapshot `38e32a46-1556-41e2-8844-b0b5a9a8ef73` → training run `48c775d6-442a-4221-b122-a26d69e4dbbf` → model version `pd-credit-v1.1.0`
+- Lineage: source `synthetic-loans-v1` → snapshot `5d5cba45-1902-43d6-933f-c26c34f5f954` → training run `4d36e015-e397-42fa-b05a-5df92521337b` → model version `pd-credit-v1.1.0`
 
 ## Target definition and modeling approach
 

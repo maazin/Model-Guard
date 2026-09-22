@@ -54,7 +54,7 @@ export function Executive() {
       </div>
       <p className="muted text-sm">
         Want the detail behind these numbers? See <Link className="underline" to={`/versions/${s.model_version}/validation`}>model quality</Link>,{" "}
-        <Link className="underline" to={`/versions/${s.model_version}/monitoring`}>monitoring</Link> or the <Link className="underline" to={`/versions/${s.model_version}/governance`}>approval record</Link>.
+        <Link className="underline" to={`/versions/${s.model_version}/monitoring`}>monitoring</Link>, the <Link className="underline" to={`/versions/${s.model_version}/governance`}>approval record</Link>, or <Link className="underline" to={`/versions/${s.model_version}/simulator`}>try the cut-off yourself</Link>.
       </p>
       <Glossary keys={["auc", "batch", "readiness", "lifecycle"]} />
     </div>

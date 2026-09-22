@@ -103,9 +103,13 @@ class ModelEvaluation:
     confusion: dict[str, Any]
     feature_importance: list[dict[str, Any]]
     fairness: dict[str, Any] | None
+    predictions: dict[str, list[Any]] = field(default_factory=dict)  # holdout scores/outcomes/groups, no identifiers
 
-    def to_dict(self) -> dict[str, Any]:
-        return self.__dict__.copy()
+    def to_dict(self, include_predictions: bool = False) -> dict[str, Any]:
+        d = self.__dict__.copy()
+        if not include_predictions:
+            d.pop("predictions", None)
+        return d
 
 
 @dataclass
@@ -162,8 +166,14 @@ def evaluate_model(
     # Downsample the ROC curve for storage/plotting.
     step = max(1, len(fpr) // 200)
     fairness = None
-    if fairness_field and fairness_field in test.columns:
+    groups = test[fairness_field].astype(str).tolist() if fairness_field and fairness_field in test.columns else []
+    if groups:
         fairness = group_metrics(y, p, test[fairness_field].to_numpy(), threshold)
+    predictions: dict[str, list[Any]] = {
+        "score": [round(float(x), 4) for x in p],
+        "outcome": [int(x) for x in y],
+        "group": list(groups),
+    }
     return ModelEvaluation(
         model_type=model_type,
         metrics={
@@ -180,6 +190,7 @@ def evaluate_model(
         confusion=M.confusion_at_threshold(y, p, threshold).to_dict(),
         feature_importance=_feature_importance(pipe, X, y, seed),
         fairness=fairness,
+        predictions=predictions,
     )
 
 
@@ -292,12 +303,16 @@ def save_artifacts(result: TrainingResult, directory: str | Path) -> dict[str, s
     (d / "metrics.json").write_text(
         json.dumps({k: v.to_dict() for k, v in result.evaluations.items()}, indent=2, default=str)
     )
+    (d / "holdout_predictions.json").write_text(
+        json.dumps({k: v.predictions for k, v in result.evaluations.items()}, separators=(",", ":"))
+    )
     (d / "config.json").write_text(json.dumps(result.config, indent=2, default=str))
     (d / "baseline_distributions.json").write_text(json.dumps(result.baseline_distributions, indent=2))
     (d / "hypothesis_tests.json").write_text(json.dumps(result.hypothesis_tests, indent=2))
     paths.update(
         {
             "metrics": str(d / "metrics.json"),
+            "holdout_predictions": str(d / "holdout_predictions.json"),
             "config": str(d / "config.json"),
             "baseline_distributions": str(d / "baseline_distributions.json"),
             "hypothesis_tests": str(d / "hypothesis_tests.json"),
