@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+from modelguard_ml.adapters import get_adapter
 from modelguard_ml.data_quality import profile, run_quality_checks
 from modelguard_shared.hashing import sha256_file, sha256_text
 from modelguard_shared.jsonutil import sanitize
@@ -97,7 +98,7 @@ def import_snapshot(
     if not db.get(DataSource, source_id):
         raise not_found("data source", source_id)
     path = _resolve_import_path(file_path)
-    df = load_frame(path)
+    df = get_adapter(source_id).normalize(load_frame(path))
     report = run_quality_checks(df, require_target=(purpose == "training"))
     snap = DataSnapshot(
         source_id=source_id,

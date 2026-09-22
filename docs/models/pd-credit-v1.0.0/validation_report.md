@@ -27,7 +27,7 @@ policy.
 | Brier score | 0.0832 | 0.0828 |
 | ECE (10 bins) | 0.0086 | 0.0134 |
 
-Holdout rows: 1301; holdout default rate 0.104. Interpretation: AUC/KS measure rank ordering; Brier/ECE measure probability quality. Limitation: bootstrap resamples the temporal holdout only (300 draws); no cross-period stability claim. Artifact: `artifacts/runs/593fd1bf-e24e-4c36-96f1-8baa5afb03c3/metrics.json`. Reviewer status: pending.
+Holdout rows: 1301; holdout default rate 0.104. Interpretation: AUC/KS measure rank ordering; Brier/ECE measure probability quality. Limitation: bootstrap resamples the temporal holdout only (300 draws); no cross-period stability claim. Artifact: `artifacts/runs/28a38142-0d1c-4e75-8109-79674277933e/metrics.json`. Reviewer status: pending.
 
 ## Calibration
 

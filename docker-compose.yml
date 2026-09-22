@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: modelguard
+      POSTGRES_PASSWORD: modelguard
+      POSTGRES_DB: modelguard
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U modelguard"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.api
+    environment:
+      MODELGUARD_DATABASE_URL: postgresql+psycopg://modelguard:modelguard@db:5432/modelguard
+      MODELGUARD_ARTIFACT_DIR: /app/artifacts
+      MODELGUARD_ENV: docker
+      MODELGUARD_LLM_PROVIDER: ${MODELGUARD_LLM_PROVIDER:-rule_based}
+      MODELGUARD_SEED_ON_START: ${MODELGUARD_SEED_ON_START:-true}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - artifacts:/app/artifacts
+      - ./docs/models:/app/docs/models
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  artifacts:

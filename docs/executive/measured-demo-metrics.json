@@ -1,0 +1,33 @@
+{
+  "measured_at": "2026-09-22T05:02:33.866Z",
+  "api_latency": {
+    "GET /api/v1/portfolio": {
+      "p50_ms": 107,
+      "p95_ms": 197.5
+    },
+    "GET /api/v1/model-versions/pd-credit-v1.0.0": {
+      "p50_ms": 6.8,
+      "p95_ms": 9.4
+    },
+    "GET /api/v1/model-versions/pd-credit-v1.0.0/monitoring": {
+      "p50_ms": 7.6,
+      "p95_ms": 8
+    },
+    "GET /api/v1/executive-summary/pd-credit-v1.0.0": {
+      "p50_ms": 38.4,
+      "p95_ms": 39.9
+    },
+    "POST /api/v1/model-versions/pd-credit-v1.2.0/copilot/query": {
+      "p50_ms": 51.2,
+      "p95_ms": 65.3
+    }
+  },
+  "dashboard_load_ms": {
+    "/": 927,
+    "/versions/pd-credit-v1.0.0": 677,
+    "/versions/pd-credit-v1.0.0/validation": 643,
+    "/versions/pd-credit-v1.0.0/monitoring": 621,
+    "/versions/pd-credit-v1.2.0/governance": 592,
+    "/versions/pd-credit-v1.0.0/executive": 678
+  }
+}
