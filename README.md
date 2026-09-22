@@ -1,4 +1,4 @@
-# ModelGuard — governed credit-risk model lifecycle platform
+# ModelGuard - governed credit-risk model lifecycle platform
 
 > **Portfolio simulation.** ModelGuard trains, validates, approves, monitors and documents a probability-of-default
 > (PD) model on the **CC BY 4.0-licensed UCI "Default of Credit Card Clients" dataset** and on an in-repo
