@@ -34,11 +34,12 @@ def summary(db: Session, mv: ModelVersion) -> dict[str, Any]:
     high = [a for a in open_alerts if a.severity == "high"]
     latest = batches[-1] if batches else None
     latest_perf = (latest.results_json.get("performance") if latest else None) or {}
+    gaps = [c for c in failing if c.check_name != "sign_off"]
     if mv.state == State.RETIRED:
         health = "retired"
     elif high:
         health = "at_risk"
-    elif open_alerts or failing and mv.state in (State.APPROVED, State.MONITORING):
+    elif open_alerts or gaps:
         health = "watch"
     else:
         health = "healthy"
