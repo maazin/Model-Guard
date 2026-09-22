@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from modelguard_api.config import get_settings
-from modelguard_api.errors import install_error_handlers
+from modelguard_api.errors import Problem, install_error_handlers
 from modelguard_api.routers import data, misc, model_versions, training
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -43,6 +43,8 @@ if settings.serve_web_dir and settings.serve_web_dir.exists():
 
     @app.get("/{full_path:path}", include_in_schema=False)
     def spa(full_path: str) -> FileResponse:
+        if full_path.startswith("api/"):
+            raise Problem(404, "Not found", f"no API route matches /{full_path}", type_="urn:modelguard:not-found")
         candidate = web_dir / full_path
         if full_path and candidate.is_file() and candidate.resolve().is_relative_to(web_dir.resolve()):
             return FileResponse(candidate)
