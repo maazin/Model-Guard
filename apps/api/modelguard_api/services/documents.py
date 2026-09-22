@@ -53,6 +53,9 @@ def base_context(db: Session, mv: ModelVersion) -> dict[str, Any]:
         "features": ", ".join(f"`{f}`" for f in cfg.get("features", [])),
         "excluded_rationale": excluded or None,
         "split_strategy": split.get("strategy"),
+        "split_description": "temporally later test partition"
+        if split.get("strategy") == "temporal"
+        else "stratified random test partition (the source has no valid time axis)",
         "split_train": counts.get("train"),
         "split_validation": counts.get("validation"),
         "split_test": counts.get("test"),

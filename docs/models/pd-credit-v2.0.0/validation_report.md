@@ -14,7 +14,7 @@ that holds the full output, and reviewer status.
 ## Scope
 
 Holdout evaluation of the registered **champion** model against the logistic baseline on
-the temporally later test partition (6000 rows). Illustrative threshold
+the stratified random test partition (the source has no valid time axis) (6000 rows). Illustrative threshold
 `0.3` was chosen on the validation partition to maximise F1; it is **not** a lending
 policy.
 
@@ -27,7 +27,7 @@ policy.
 | Brier score | 0.1318 | 0.1404 |
 | ECE (10 bins) | 0.0111 | 0.0271 |
 
-Holdout rows: 6000; holdout default rate 0.221. Interpretation: AUC/KS measure rank ordering; Brier/ECE measure probability quality. Limitation: bootstrap resamples the temporal holdout only (300 draws); no cross-period stability claim. Artifact: `artifacts/runs/fdb605a8-308e-402e-9df1-79b6fc5f5112/metrics.json`. Reviewer status: pending.
+Holdout rows: 6000; holdout default rate 0.221. Interpretation: AUC/KS measure rank ordering; Brier/ECE measure probability quality. Limitation: bootstrap resamples the temporal holdout only (300 draws); no cross-period stability claim. Artifact: `artifacts/runs/6e17cc06-4f91-4f2a-814e-ea8cfd2c29f7/metrics.json`. Reviewer status: pending.
 
 ## Calibration
 

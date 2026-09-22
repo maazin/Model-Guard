@@ -28,7 +28,7 @@ export function VersionDetail() {
         badges={<Badge value={v.state} />}
       />
 
-      <Card title="Where this version is in its life" subtitle={<Term k="lifecycle">Each step is recorded in the audit log below.</Term>}>
+      <Card title={<>Where this version is in its life <span className="faint font-normal">· lifecycle state</span></>} subtitle={<Term k="lifecycle">Each step is recorded in the audit log below.</Term>}>
         <ol className="flex flex-wrap gap-2">
           {STATES.map((s) => (
             <li key={s} className="rounded-full border px-3 py-1 text-sm" style={{ borderColor: reached.includes(s) ? "var(--accent)" : "var(--hairline)", color: reached.includes(s) ? "var(--text)" : "var(--text-3)", fontWeight: s === v.state ? 600 : 400 }}>
@@ -47,7 +47,7 @@ export function VersionDetail() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Where the data came from" subtitle={<Term k="lineage">Everything needed to reproduce this version.</Term>}>
+        <Card title={<>Where the data came from <span className="faint font-normal">· lineage</span></>} subtitle={<Term k="lineage">Everything needed to reproduce this version.</Term>}>
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             <dt className="muted">Dataset</dt><dd>{v.source.name} <span className="faint">({v.source.id})</span></dd>
             <dt className="muted">Licence</dt><dd><a className="underline" href={v.source.license_url} target="_blank" rel="noreferrer">{v.source.license_name || v.source.license_url}</a>, retrieved {v.source.retrieval_date}</dd>
@@ -60,7 +60,7 @@ export function VersionDetail() {
             <dt className="muted">Registered</dt><dd>{fmtDate(v.created_at)} by {v.owner.replace(/_/g, " ")}</dd>
           </dl>
         </Card>
-        <Card title="Which inputs matter most" subtitle={<Term k="importance">Drop in ranking accuracy when each input is scrambled.</Term>}>
+        <Card title={<>Which inputs matter most <span className="faint font-normal">· permutation importance</span></>} subtitle={<Term k="importance">Drop in ranking accuracy when each input is scrambled.</Term>}>
           {importance.length === 0 ? (
             <p className="muted text-sm">Run validation to compute importance.</p>
           ) : (
@@ -81,7 +81,7 @@ export function VersionDetail() {
         <DocumentViewer versionId={v.semantic_version} type="model_card" />
       </Card>
 
-      <Card title="Audit log" subtitle={<Term k="audit">{v.audit_events.length} events, newest first. Each carries a fingerprint chained to the previous one.</Term>}>
+      <Card title={<>Permanent record of changes <span className="faint font-normal">· hash-chained audit log</span></>} subtitle={<Term k="audit">{v.audit_events.length} events, newest first. Each carries a fingerprint chained to the previous one.</Term>}>
         <AuditLog events={v.audit_events} />
       </Card>
       <Glossary keys={["auc", "ks", "brier", "ece", "ci", "holdout", "lineage", "checksum", "importance", "modelCard", "audit"]} />

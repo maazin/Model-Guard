@@ -75,7 +75,7 @@ export function Monitoring() {
       {batches.length > 0 && (
         <>
           <div className="grid gap-4 lg:grid-cols-3">
-            <Card title="Is accuracy holding up?" subtitle="Ranking accuracy on each batch where outcomes are known; dotted line is the level at approval.">
+            <Card title={<>Is accuracy holding up? <span className="faint font-normal">· AUC per batch</span></>} subtitle="Ranking accuracy on each batch where outcomes are known; dotted line is the level at approval.">
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={trend} margin={{ left: 0, right: 12, top: 8 }}>
                   <CartesianGrid stroke="var(--hairline)" />
@@ -87,7 +87,7 @@ export function Monitoring() {
                 </LineChart>
               </ResponsiveContainer>
             </Card>
-            <Card title="Are the borrowers changing?" subtitle={<><Term k="psi">Population shift</Term> of the most-changed input and of the scores. Dotted lines: investigate / alert.</>}>
+            <Card title={<>Are the borrowers changing? <span className="faint font-normal">· PSI</span></>} subtitle={<><Term k="psi">Population shift</Term> of the most-changed input and of the scores. Dotted lines: investigate / alert.</>}>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={trend} margin={{ left: 0, right: 12, top: 8 }}>
                   <CartesianGrid stroke="var(--hairline)" />
@@ -102,7 +102,7 @@ export function Monitoring() {
                 </LineChart>
               </ResponsiveContainer>
             </Card>
-            <Card title="Is the data clean?" subtitle="Missing values, duplicates and the share of borrowers who actually defaulted.">
+            <Card title={<>Is the data clean? <span className="faint font-normal">· data-quality checks</span></>} subtitle="Missing values, duplicates and the share of borrowers who actually defaulted.">
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={trend} margin={{ left: 0, right: 12, top: 8 }}>
                   <CartesianGrid stroke="var(--hairline)" />
@@ -117,7 +117,7 @@ export function Monitoring() {
               </ResponsiveContainer>
             </Card>
           </div>
-          <Card title="Shift in each input, batch by batch" subtitle={<>Project defaults: below {mon.thresholds.psi_investigate} stable, {mon.thresholds.psi_investigate}–{mon.thresholds.psi_alert} investigate, above {mon.thresholds.psi_alert} alert. These are configurable, not regulatory.</>}>
+          <Card title={<>Shift in each input, batch by batch <span className="faint font-normal">· PSI table</span></>} subtitle={<>Project defaults: below {mon.thresholds.psi_investigate} stable, {mon.thresholds.psi_investigate}–{mon.thresholds.psi_alert} investigate, above {mon.thresholds.psi_alert} alert. These are configurable, not regulatory.</>}>
             <div className="overflow-auto">
               <table className="data" data-testid="psi-table">
                 <thead><tr><th>Input</th>{batches.map((b) => <th key={b.id}>{b.as_of_date}</th>)}</tr></thead>

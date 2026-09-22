@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCurrentUser, useVersion } from "../lib/hooks";
 import { STATIC_DEMO, post } from "../lib/api";
-import { Badge, Card, ErrorBox, Glossary, Loading, PageHeader, Term, fmtDate } from "../components/ui";
+import { Badge, Card, ErrorBox, Glossary, Loading, PageHeader, fmtDate } from "../components/ui";
 import { DocumentViewer } from "../components/DocumentViewer";
 
 const DOC_TYPES: [string, string][] = [
@@ -99,7 +99,7 @@ export function Governance() {
       <PageHeader title="Approval and evidence" lede={lede} badges={<Badge value={v.state} />} />
       {error && <ErrorBox error={error} />}
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
-        <Card title={<><Term k="readiness">Readiness checks</Term> · {v.readiness.length - failing.length} of {v.readiness.length} met</>}>
+        <Card title={<>Evidence requirements <span className="faint font-normal">· readiness checks · {v.readiness.length - failing.length} of {v.readiness.length} met</span></>}>
           <ul className="space-y-2" data-testid="readiness-list">
             {v.readiness.map((c) => (
               <li key={c.check_name} className="rounded-xl px-3 py-2.5" style={{ background: "var(--surface-2)" }}>
@@ -147,7 +147,7 @@ export function Governance() {
           </Card>
         </div>
       </div>
-      <Card title={<><Term k="controls">Controls</Term> · {v.controls.length}</>} subtitle="The safeguards around this model. Each needs an owner, a frequency and evidence that it has been tested.">
+      <Card title={<>Safeguards <span className="faint font-normal">· risk-control matrix · {v.controls.length}</span></>} subtitle="The safeguards around this model. Each needs an owner, a frequency and evidence that it has been tested.">
         {v.controls.length === 0 ? <p className="muted text-sm">No controls recorded yet.</p> : (
           <div className="overflow-auto">
             <table className="data"><thead><tr><th>Control</th><th>Owner</th><th>How often</th><th>Status</th><th>Evidence</th></tr></thead>
@@ -163,7 +163,7 @@ export function Governance() {
       >
         <DocumentViewer versionId={v.semantic_version} type={doc} />
       </Card>
-      <Card title="Ask what evidence is missing">
+      <Card title={<>Ask what evidence is missing <span className="faint font-normal">· document-grounded assistant</span></>}>
         <EvidenceAssistant id={v.semantic_version} />
       </Card>
       <Glossary keys={["readiness", "controls", "modelCard", "lifecycle", "audit"]} />

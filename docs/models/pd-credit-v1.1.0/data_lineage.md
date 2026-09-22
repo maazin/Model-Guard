@@ -16,7 +16,7 @@ template_version: 1
 
 ## Lineage chain
 
-source `synthetic-loans-v1` → snapshot `6dcac44d-1baf-4353-a9a1-6b004c425a04` (as-of 2023-12-31, checksum `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`) → training run `80e0318a-cdd5-4771-b1f9-7b9b8a6d6e50` → model version `pd-credit-v1.1.0`
+source `synthetic-loans-v1` → snapshot `574d9698-c1f7-402a-a053-e033007e59fc` (as-of 2023-12-31, checksum `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`) → training run `0607c66e-bf83-4431-a223-ed664f940d03` → model version `pd-credit-v1.1.0`
 
 ## Data dictionary
 

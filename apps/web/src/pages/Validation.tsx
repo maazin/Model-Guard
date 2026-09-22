@@ -56,7 +56,7 @@ export function Validation() {
         badges={<Badge value={v.state} />}
       />
       <Card
-        title="Candidate versus reference model"
+        title={<>Candidate versus reference model <span className="faint font-normal">· champion vs. baseline</span></>}
         subtitle={
           better
             ? overlap
@@ -67,7 +67,7 @@ export function Validation() {
       >
         <table className="data">
           <thead>
-            <tr><th>Measure</th><th>{v.model_type === "champion" ? "Candidate (gradient-boosted)" : "Candidate (logistic)"}</th><th>{otherType === "baseline" ? "Reference (logistic)" : "Gradient-boosted"}</th><th className="hidden sm:table-cell">Better is</th></tr>
+            <tr><th>Measure · technical name</th><th>{v.model_type === "champion" ? "Candidate (gradient-boosted)" : "Candidate (logistic)"}</th><th>{otherType === "baseline" ? "Reference (logistic)" : "Gradient-boosted"}</th><th className="hidden sm:table-cell">Better is</th></tr>
           </thead>
           <tbody>
             {rows.map(([label, key, m]) => (
@@ -84,7 +84,7 @@ export function Validation() {
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Trade-off between catching defaulters and flagging good borrowers" subtitle="The further the curve sits above the diagonal, the better the model ranks risk.">
+        <Card title={<>Trade-off between catching defaulters and flagging good borrowers <span className="faint font-normal">· ROC curve</span></>} subtitle="The further the curve sits above the diagonal, the better the model ranks risk.">
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={roc} margin={{ left: 0, right: 12, top: 8 }}>
               <CartesianGrid stroke="var(--hairline)" />
@@ -96,7 +96,7 @@ export function Validation() {
             </LineChart>
           </ResponsiveContainer>
         </Card>
-        <Card title="Do the probabilities mean what they say?" subtitle={<>Points on the dotted line are perfectly honest. <Term k="ece">Calibration error</Term>: {fmt(a.calibration.ece, 3)}.</>}>
+        <Card title={<>Do the probabilities mean what they say? <span className="faint font-normal">· calibration curve</span></>} subtitle={<>Points on the dotted line are perfectly honest. <Term k="ece">Calibration error</Term>: {fmt(a.calibration.ece, 3)}.</>}>
           <ResponsiveContainer width="100%" height={260}>
             <ScatterChart margin={{ left: 0, right: 12, top: 8 }}>
               <CartesianGrid stroke="var(--hairline)" />
@@ -111,7 +111,7 @@ export function Validation() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title={<>What happens at an <Term k="threshold">illustrative cut-off</Term> of {fmt(conf.threshold, 2)}</>} subtitle="Chosen only to show the trade-off. It is not a lending policy.">
+        <Card title={<>What happens at an <Term k="threshold" hideAbbr>illustrative cut-off</Term> of {fmt(conf.threshold, 2)} <span className="faint font-normal">· confusion matrix at the decision threshold</span></>} subtitle="Chosen only to show the trade-off. It is not a lending policy.">
           <table className="data w-auto">
             <thead><tr><th></th><th>Flagged</th><th>Not flagged</th></tr></thead>
             <tbody>
@@ -123,7 +123,7 @@ export function Validation() {
             Of borrowers flagged, {Math.round(conf.precision * 100)}% defaulted (<Term k="precision">precision</Term>); of borrowers who defaulted, {Math.round(conf.recall * 100)}% were flagged (recall). {Math.round(conf.selection_rate * 100)}% of all borrowers would be flagged.
           </p>
         </Card>
-        <Card title="How the cut-off changes the picture" subtitle="Moving the cut-off right flags fewer borrowers but misses more defaulters.">
+        <Card title={<>How the cut-off changes the picture <span className="faint font-normal">· threshold analysis</span></>} subtitle="Moving the cut-off right flags fewer borrowers but misses more defaulters.">
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={a.threshold_analysis} margin={{ left: 0, right: 12, top: 8 }}>
               <CartesianGrid stroke="var(--hairline)" />
@@ -140,13 +140,13 @@ export function Validation() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Does it treat groups of borrowers alike?" subtitle={<><Term k="fairness">Fairness diagnostics</Term> by <code>{fairnessField}</code>, which is never used as a model input.</>}>
+        <Card title={<>Does it treat groups of borrowers alike? <span className="faint font-normal">· fairness diagnostics</span></>} subtitle={<><Term k="fairness">Fairness diagnostics</Term> by <code>{fairnessField}</code>, which is never used as a model input.</>}>
           {fair ? (
             <>
               <div className="mb-3 grid grid-cols-3 gap-2 text-sm">
-                <div><div className="faint text-xs">Flag-rate ratio</div><div className="tabular text-lg font-medium">{fmt(fair.selection_rate_ratio, 2)}</div></div>
-                <div><div className="faint text-xs">Defaulters caught, gap</div><div className="tabular text-lg font-medium">{fmt(fair.tpr_difference, 3)}</div></div>
-                <div><div className="faint text-xs">Flagged in error, gap</div><div className="tabular text-lg font-medium">{fmt(fair.fpr_difference, 3)}</div></div>
+                <div><div className="faint text-xs">Flag-rate ratio · selection-rate ratio</div><div className="tabular text-lg font-medium">{fmt(fair.selection_rate_ratio, 2)}</div></div>
+                <div><div className="faint text-xs">Defaulters caught, gap · TPR difference</div><div className="tabular text-lg font-medium">{fmt(fair.tpr_difference, 3)}</div></div>
+                <div><div className="faint text-xs">Flagged in error, gap · FPR difference</div><div className="tabular text-lg font-medium">{fmt(fair.fpr_difference, 3)}</div></div>
               </div>
               <table className="data">
                 <thead><tr><th>Group</th><th>Borrowers</th><th>Flagged</th><th>Defaulters caught</th><th>Flagged in error</th><th>Actual default rate</th><th>Predicted</th></tr></thead>
@@ -162,7 +162,7 @@ export function Validation() {
             <p className="muted text-sm">No grouping field is available for this dataset; the reason is recorded in the risk assessment.</p>
           )}
         </Card>
-        <Card title="Is the test data like the training data?" subtitle={<Term k="hypothesis">A formal check of one input, so the comparison is fair.</Term>}>
+        <Card title={<>Is the test data like the training data? <span className="faint font-normal">· two-sample KS test</span></>} subtitle={<Term k="hypothesis">A formal check of one input, so the comparison is fair.</Term>}>
           {ht && (
             <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
               <dt className="muted">Input checked</dt><dd><code>{ht.feature}</code></dd>

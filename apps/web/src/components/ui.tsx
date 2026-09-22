@@ -31,28 +31,40 @@ export function Badge({ value, label }: { value: string; label?: string }) {
   );
 }
 
-/** A technical term with a plain-language explanation on hover/focus and in the page glossary. */
-export function Term({ k, children }: { k: GlossaryKey; children?: ReactNode }) {
+/** Plain label with its technical name alongside; hover shows the short explanation, the page glossary has the full one. */
+export function Term({ k, children, hideAbbr = false }: { k: GlossaryKey; children?: ReactNode; hideAbbr?: boolean }) {
   const g = GLOSSARY[k];
   return (
-    <abbr className="term" title={`${g.term}: ${g.short}`}>
-      {children ?? g.term}
+    <abbr className="term" title={`${g.jargon} (${g.abbr}). ${g.short}`}>
+      {children ?? g.plain}
+      {!hideAbbr && <span className="faint font-normal"> · {g.abbr}</span>}
     </abbr>
   );
 }
 
-/** Collapsible glossary listing the terms used on a page. */
+/** Collapsible glossary: for each term, the technical name, what it computes, the plain meaning, and how the two connect. */
 export function Glossary({ keys }: { keys: GlossaryKey[] }) {
   return (
     <details className="glossary card">
-      <summary>What do these terms mean?</summary>
-      <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-        {keys.map((k) => (
-          <div key={k}>
-            <dt className="text-sm font-medium">{GLOSSARY[k].term}</dt>
-            <dd className="muted mt-0.5 text-sm">{GLOSSARY[k].long}</dd>
-          </div>
-        ))}
+      <summary>Plain language and the technical terms behind it</summary>
+      <p className="muted mt-2 text-sm">Each label on this page is shown in everyday words with the technical term beside it. Here is what each term computes and how the two map onto each other.</p>
+      <dl className="mt-4 space-y-5">
+        {keys.map((k) => {
+          const g = GLOSSARY[k];
+          return (
+            <div key={k} className="border-t pt-4 hairline">
+              <dt className="text-sm">
+                <span className="font-semibold">{g.plain}</span>
+                <span className="muted"> — {g.jargon}{g.abbr !== g.plain ? ` (${g.abbr})` : ""}</span>
+              </dt>
+              <dd className="mt-2 grid gap-3 text-sm md:grid-cols-3">
+                <div><div className="faint text-xs uppercase tracking-wide">In plain terms</div><div className="mt-1">{g.short}</div></div>
+                <div><div className="faint text-xs uppercase tracking-wide">What is computed</div><div className="muted mt-1">{g.technical}</div></div>
+                <div><div className="faint text-xs uppercase tracking-wide">How they connect</div><div className="muted mt-1">{g.bridge}</div></div>
+              </dd>
+            </div>
+          );
+        })}
       </dl>
     </details>
   );

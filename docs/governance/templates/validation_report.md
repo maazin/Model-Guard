@@ -14,7 +14,7 @@ that holds the full output, and reviewer status.
 ## Scope
 
 Holdout evaluation of the registered **{{ model_type }}** model against the logistic baseline on
-the temporally later test partition ({{ split_test }} rows). Illustrative threshold
+the {{ split_description }} ({{ split_test }} rows). Illustrative threshold
 `{{ threshold }}` was chosen on the validation partition to maximise F1; it is **not** a lending
 policy.
 
