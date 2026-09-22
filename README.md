@@ -6,14 +6,49 @@
 > any regulation or any bank's governance framework.** Nothing here connects to a real bank, bureau, customer or
 > borrower.
 
-ModelGuard brings four normally-fragmented workflows into one local-first application:
+## Why this exists
+
+Banks and lenders use statistical models to estimate how likely a borrower is to miss payments. Those models
+influence who gets credit and at what price, so they deserve the same discipline as any other important decision:
+evidence before use, a named person accountable, and ongoing checks afterwards.
+
+The trouble is that a model is only as good as the day it was built. Borrowers change, the economy changes, and a
+model that was accurate last year can quietly stop being accurate — or be unfair to a group of people without anyone
+intending it. In most organisations the evidence that would reveal this is scattered across notebooks, emails and
+spreadsheets, so when a regulator, auditor or risk committee asks *"how do you know this model is still safe to use?"*,
+assembling the answer takes weeks.
+
+**ModelGuard is one place where a model goes from idea to approval to retirement, collecting the evidence along the
+way instead of reconstructing it afterwards:**
+
+1. **Build and test** — train the model and measure it on borrowers it has never seen; record every setting so the
+   result can be reproduced.
+2. **Gather the evidence** — eight requirements (data lineage, purpose, test results, monitoring plan, fairness,
+   safeguards, security, sign-off) must be met before approval is even possible; every gap is named.
+3. **A person decides** — only a reviewer can approve or reject, with a reason, and every step is written to a
+   tamper-evident record.
+4. **Keep watching** — each new batch of borrowers is checked for dirty data, population shift and falling accuracy;
+   problems become alerts with an owner and a due date.
+
+It is written so that a non-technical reader can follow it: every technical term appears beside a plain-language
+label, and each page of the dashboard ends with an explanation of how the two connect.
+
+**What it is not:** a real lending system (no real borrower is scored), credit advice, or a claim that any regulation
+is satisfied. It is a portfolio project that shows, end to end, what responsible use of a credit-risk model looks like.
+
+## What is inside
+
+For the technically minded, the four workflows above map to:
 
 1. **Train and evaluate** an explainable PD model (logistic baseline vs. gradient-boosted champion) on a temporal holdout with bootstrap confidence intervals, calibration, threshold analysis, feature importance, a documented hypothesis test and fairness diagnostics.
 2. **Register immutable model versions** with lineage (source → snapshot → training run → version), eight versioned governance documents, a control matrix, a deterministic **readiness gate** that names every missing piece of evidence, a human-only approval step, and a **hash-chained, append-only audit log**.
 3. **Monitor** dated batches for data quality, feature/score drift (PSI), calibration and performance, with an alert → investigate → resolve workflow.
 4. Ask a **retrieval-grounded governance copilot** what is missing before approval. It reads only that version's approved documents, cites document sections, returns a validated JSON structure, and works fully offline with a deterministic rule-based provider.
 
-**Live read-only demo:** https://maazin.github.io/Model-Guard/ — a static snapshot of the seeded registry (all four model versions, including the real-data `pd-credit-v2.0.0`). Approvals, alert resolution and free-form copilot questions need the live API below.
+**Try it:**
+
+- **Interactive app:** https://modelguard-6p3u.onrender.com — the full application (free hosting, so allow ~50 seconds to wake up if it has been idle). Pick a model, switch *View as* to "Model risk reviewer", open *Approval*, and approve or reject the version that is waiting.
+- **Read-only demo:** https://maazin.github.io/Model-Guard/ — an instant static snapshot of the same registry.
 
 ![Monitoring page](docs/screenshots/monitoring.png)
 
@@ -87,7 +122,7 @@ All numbers below are read from the seeded database by `make executive-pack` / `
 | Monitoring | 3 batches; 8 induced alerts (4 high, 4 medium): PSI on `debt_to_income` 1.27, `interest_rate` 3.43, `employment_length` 0.35, score PSI 1.41; 1 resolved, 1 investigating |
 | Audit | 189 hash-chained events on the full seed; chain verifies |
 | Copilot | rule-based provider scores **8/8 (100%)** on the hand-authored completeness set (`tests/fixtures/copilot_eval.json`); hosted providers not measured (no key in CI) |
-| Tests | 119 pytest (99 unit incl. the copilot eval and UCI adapter tests + 20 integration; 1 hosted-provider eval skipped without a key) + 5 Playwright e2e; **93% line coverage** overall (lifecycle and audit modules 100%) |
+| Tests | 119 pytest (99 unit incl. the copilot eval and UCI adapter tests + 20 integration; 1 hosted-provider eval skipped without a key) + 6 Playwright e2e; **93% line coverage** overall (lifecycle and audit modules 100%) |
 | Latency (local SQLite, p50 / p95) | version detail 7 / 9 ms · monitoring 8 / 8 ms · executive summary 38 / 40 ms · copilot query 51 / 65 ms · portfolio 107 / 198 ms (re-runs the readiness engine incl. secrets scan) |
 | Dashboard load (Vite dev, network idle) | 0.6–0.9 s per page |
 

@@ -43,6 +43,9 @@ export function Layout() {
             ModelGuard
           </NavLink>
           <nav className="flex flex-wrap items-center gap-1" aria-label="Main">
+            <NavLink to="/about" className={link}>
+              Why this exists
+            </NavLink>
             <NavLink to="/" end className={link}>
               All models
             </NavLink>

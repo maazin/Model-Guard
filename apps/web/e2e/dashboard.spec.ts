@@ -23,3 +23,12 @@ test("monitoring shows three batches, PSI alerts and lets a user resolve one", a
   await openRow.getByRole("button", { name: "Resolve" }).click();
   await expect(page.getByText("Resolution: Reviewed during e2e; benign shift.")).toBeVisible();
 });
+
+test("the purpose page explains the project in plain language", async ({ page }) => {
+  await page.goto("/about");
+  await expect(page.getByRole("heading", { name: "Why this exists" })).toBeVisible();
+  await expect(page.getByText("The problem")).toBeVisible();
+  await expect(page.getByText("What it is not")).toBeVisible();
+  await page.getByRole("link", { name: "all models" }).click();
+  await expect(page.getByRole("heading", { name: "Credit-risk models" })).toBeVisible();
+});

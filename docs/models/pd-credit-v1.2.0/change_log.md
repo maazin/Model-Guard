@@ -10,4 +10,4 @@ template_version: 1
 
 ## Changes
 
-- 2026-09-22: `pd-credit-v1.2.0` registered from training run `74470eaf-90c6-44d8-91b0-ea599be6d8bd` (baseline).
+- 2026-09-22: `pd-credit-v1.2.0` registered from training run `7ec9c218-7a1d-4cf6-bf45-5a168e404f59` (baseline).

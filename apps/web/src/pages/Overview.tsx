@@ -16,8 +16,9 @@ export function Overview() {
         title="Credit-risk models"
         lede={
           <>
-            Each card is one version of a model that estimates how likely a borrower is to default. A version moves from draft to approval only when its evidence is complete and a
-            human reviewer signs off, and it is watched for problems afterwards. {live.length} version{live.length === 1 ? " is" : "s are"} currently approved and monitored.
+            Lenders use models like these to estimate how likely a borrower is to miss payments. ModelGuard makes sure such a model is not used until its evidence is complete and a
+            person has signed off, and keeps watching it afterwards. Each card below is one version of a model. {live.length} version{live.length === 1 ? " is" : "s are"} currently
+            approved and monitored. New here? <Link className="underline" to="/about">Read why this exists</Link>.
           </>
         }
       />
