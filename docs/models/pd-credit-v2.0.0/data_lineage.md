@@ -16,7 +16,7 @@ template_version: 1
 
 ## Lineage chain
 
-source `uci-credit-default-2005` → snapshot `cc3cd13a-4087-4b71-9f0d-96105b222dc9` (as-of 2005-09-30, checksum `30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933`) → training run `0c08790b-1765-4675-95ad-e64970856238` → model version `pd-credit-v2.0.0`
+source `uci-credit-default-2005` → snapshot `f30f79b0-11de-4cc7-8ed6-f19947b590fb` (as-of 2005-09-30, checksum `30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933`) → training run `f00486af-7437-48bf-be40-1f2c25d9b5a2` → model version `pd-credit-v2.0.0`
 
 ## Data dictionary
 

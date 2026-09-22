@@ -2,7 +2,7 @@
 document_type: model_card
 title: Model Card
 model_version: pd-credit-v2.0.0
-model_uuid: 389c7572-01fb-4ee0-986f-c3c20a4bacd8
+model_uuid: 0f07e0d2-113e-43f4-9c2b-e111736d8316
 status: complete
 template_version: 1
 ---
@@ -11,10 +11,10 @@ template_version: 1
 
 ## Model name and version
 
-- Name: ModelGuard PD model (`pd-credit-v2.0.0`), immutable UUID `389c7572-01fb-4ee0-986f-c3c20a4bacd8`
+- Name: ModelGuard PD model (`pd-credit-v2.0.0`), immutable UUID `0f07e0d2-113e-43f4-9c2b-e111736d8316`
 - Registered model type: **champion** (HistGradientBoostingClassifier)
-- Training run: `0c08790b-1765-4675-95ad-e64970856238`; git SHA `d4405ab4c010be85850a5adedf3aeb28d1665574`
-- Created: 2026-09-22T05:34:04
+- Training run: `f00486af-7437-48bf-be40-1f2c25d9b5a2`; git SHA `n/a`
+- Created: 2026-09-22T05:39:41
 
 ## Business purpose and intended use
 
@@ -28,7 +28,7 @@ Credit decisions, pricing, collections prioritisation, any real borrower, and an
 
 - Source: `uci-credit-default-2005` — UCI 350 - Default of Credit Card Clients (Yeh & Lien, 2009) (license: https://creativecommons.org/licenses/by/4.0/, retrieved 2026-09-22)
 - Snapshot as-of 2005-09-30, 30000 rows, SHA-256 `30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933`
-- Lineage: source `uci-credit-default-2005` → snapshot `cc3cd13a-4087-4b71-9f0d-96105b222dc9` → training run `0c08790b-1765-4675-95ad-e64970856238` → model version `pd-credit-v2.0.0`
+- Lineage: source `uci-credit-default-2005` → snapshot `f30f79b0-11de-4cc7-8ed6-f19947b590fb` → training run `f00486af-7437-48bf-be40-1f2c25d9b5a2` → model version `pd-credit-v2.0.0`
 
 ## Target definition and modeling approach
 
@@ -54,7 +54,7 @@ Excluded:
 - Split: stratified (train 18000 / validation 6000 / test 6000 rows)
 - Random seed: `42`; training-data checksum `30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933`
 - Hyperparameters: `{"learning_rate": 0.04, "max_iter": 150, "max_depth": 3, "max_leaf_nodes": 8, "min_samples_leaf": 60, "l2_regularization": 5.0, "early_stopping": false}`
-- Package versions: `{"python": "3.13.7", "numpy": "2.5.3", "pandas": "3.0.6", "scikit-learn": "1.9.1", "scipy": "1.18.1", "joblib": "1.6.0"}`
+- Package versions: `{"python": "3.13.15", "numpy": "2.5.3", "pandas": "3.0.6", "scikit-learn": "1.9.1", "scipy": "1.18.1", "joblib": "1.6.0"}`
 
 ## Performance, calibration, and fairness results
 

@@ -2,7 +2,7 @@
 document_type: model_card
 title: Model Card
 model_version: pd-credit-v1.0.0
-model_uuid: 0ca4edc4-6e2d-48f9-8d5a-2661a0bae3fb
+model_uuid: e67e077b-d8c3-42c8-aff8-c700a1135c35
 status: complete
 template_version: 1
 ---
@@ -11,10 +11,10 @@ template_version: 1
 
 ## Model name and version
 
-- Name: ModelGuard PD model (`pd-credit-v1.0.0`), immutable UUID `0ca4edc4-6e2d-48f9-8d5a-2661a0bae3fb`
+- Name: ModelGuard PD model (`pd-credit-v1.0.0`), immutable UUID `e67e077b-d8c3-42c8-aff8-c700a1135c35`
 - Registered model type: **champion** (HistGradientBoostingClassifier)
-- Training run: `ddb22272-d9fa-451a-a87b-d246dd6c7b19`; git SHA `d4405ab4c010be85850a5adedf3aeb28d1665574`
-- Created: 2026-09-22T05:33:56
+- Training run: `451799d4-075f-453d-90b1-a712ae8c4b06`; git SHA `n/a`
+- Created: 2026-09-22T05:39:31
 
 ## Business purpose and intended use
 
@@ -28,7 +28,7 @@ Credit decisions, pricing, collections prioritisation, any real borrower, and an
 
 - Source: `synthetic-loans-v1` — ModelGuard synthetic loan-performance fixture (license: https://opensource.org/license/mit, retrieved 2026-09-22)
 - Snapshot as-of 2023-12-31, 6000 rows, SHA-256 `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`
-- Lineage: source `synthetic-loans-v1` → snapshot `7b075f8a-a98a-44f9-81c6-c028eeb5f661` → training run `ddb22272-d9fa-451a-a87b-d246dd6c7b19` → model version `pd-credit-v1.0.0`
+- Lineage: source `synthetic-loans-v1` → snapshot `26bc0b93-87df-42aa-8a85-1235d386e5b3` → training run `451799d4-075f-453d-90b1-a712ae8c4b06` → model version `pd-credit-v1.0.0`
 
 ## Target definition and modeling approach
 
@@ -52,7 +52,7 @@ Excluded:
 - Split: temporal (train 3437 / validation 1262 / test 1301 rows)
 - Random seed: `42`; training-data checksum `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`
 - Hyperparameters: `{"learning_rate": 0.04, "max_iter": 150, "max_depth": 3, "max_leaf_nodes": 8, "min_samples_leaf": 60, "l2_regularization": 5.0, "early_stopping": false}`
-- Package versions: `{"python": "3.13.7", "numpy": "2.5.3", "pandas": "3.0.6", "scikit-learn": "1.9.1", "scipy": "1.18.1", "joblib": "1.6.0"}`
+- Package versions: `{"python": "3.13.15", "numpy": "2.5.3", "pandas": "3.0.6", "scikit-learn": "1.9.1", "scipy": "1.18.1", "joblib": "1.6.0"}`
 
 ## Performance, calibration, and fairness results
 
