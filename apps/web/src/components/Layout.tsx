@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { NavLink, Outlet, useParams } from "react-router-dom";
-import { get, setCurrentUser } from "../lib/api";
+import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
+import { REPO_URL, STATIC_DEMO, get, setCurrentUser } from "../lib/api";
 import { useCurrentUser } from "../lib/hooks";
 
 const ROLES = [
@@ -22,6 +22,7 @@ export function useUser() {
 export function Layout() {
   const { user, change } = useUser();
   const { id } = useParams();
+  const navigate = useNavigate();
   const versions = useQuery({ queryKey: ["versions"], queryFn: () => get("/api/v1/model-versions") });
   const tabs = id
     ? [
@@ -53,7 +54,7 @@ export function Layout() {
           </nav>
           <div className="ml-auto flex items-center gap-2 text-sm">
             {versions.data && (
-              <select className="btn" value={id ?? ""} onChange={(e) => e.target.value && (window.location.href = `/versions/${e.target.value}`)} aria-label="Model version">
+              <select className="btn" value={id ?? ""} onChange={(e) => e.target.value && navigate(`/versions/${e.target.value}`)} aria-label="Model version">
                 <option value="">Select version…</option>
                 {versions.data.map((v: any) => (
                   <option key={v.id} value={v.semantic_version}>
@@ -75,6 +76,12 @@ export function Layout() {
           </div>
         </div>
       </header>
+      {STATIC_DEMO && (
+        <div className="border-b px-4 py-2 text-center text-xs" style={{ background: "var(--surface-1)", borderColor: "var(--status-warning)", color: "var(--text-secondary)" }} data-testid="demo-banner">
+          <strong style={{ color: "var(--status-warning)" }}>Read-only public demo.</strong> Snapshot of the seeded registry; approvals, alert resolution and free-form copilot questions need the live API —{" "}
+          <a className="underline" href={REPO_URL} target="_blank" rel="noreferrer">clone the repo</a> and run <code>make docker-up</code>.
+        </div>
+      )}
       <main className="mx-auto max-w-7xl px-4 py-6">
         <Outlet />
       </main>

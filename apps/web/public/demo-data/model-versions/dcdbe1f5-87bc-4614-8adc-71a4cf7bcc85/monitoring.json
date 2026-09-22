@@ -1,0 +1,1 @@
+{"model_version":"pd-credit-v1.2.0","state":"VALIDATED","thresholds":{"psi_investigate":0.1,"psi_alert":0.25,"auc_drop":0.05,"null_rate_max":0.05,"duplicate_rate_max":0.01},"holdout_auc":0.770611778158948,"batches":[],"alerts":[]}

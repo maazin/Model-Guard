@@ -2,7 +2,7 @@
 document_type: model_card
 title: Model Card
 model_version: pd-credit-v2.0.0
-model_uuid: 0f07e0d2-113e-43f4-9c2b-e111736d8316
+model_uuid: e9cfcfa8-6fa9-47f3-8ee4-f1187d5d7545
 status: complete
 template_version: 1
 ---
@@ -11,10 +11,10 @@ template_version: 1
 
 ## Model name and version
 
-- Name: ModelGuard PD model (`pd-credit-v2.0.0`), immutable UUID `0f07e0d2-113e-43f4-9c2b-e111736d8316`
+- Name: ModelGuard PD model (`pd-credit-v2.0.0`), immutable UUID `e9cfcfa8-6fa9-47f3-8ee4-f1187d5d7545`
 - Registered model type: **champion** (HistGradientBoostingClassifier)
-- Training run: `f00486af-7437-48bf-be40-1f2c25d9b5a2`; git SHA `n/a`
-- Created: 2026-09-22T05:39:41
+- Training run: `2230a661-216f-4f50-8322-85445c84b524`; git SHA `af7a974026660113ec5d2faf76df52b706eb61f2`
+- Created: 2026-09-22T05:54:07
 
 ## Business purpose and intended use
 
@@ -28,7 +28,7 @@ Credit decisions, pricing, collections prioritisation, any real borrower, and an
 
 - Source: `uci-credit-default-2005` — UCI 350 - Default of Credit Card Clients (Yeh & Lien, 2009) (license: https://creativecommons.org/licenses/by/4.0/, retrieved 2026-09-22)
 - Snapshot as-of 2005-09-30, 30000 rows, SHA-256 `30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933`
-- Lineage: source `uci-credit-default-2005` → snapshot `f30f79b0-11de-4cc7-8ed6-f19947b590fb` → training run `f00486af-7437-48bf-be40-1f2c25d9b5a2` → model version `pd-credit-v2.0.0`
+- Lineage: source `uci-credit-default-2005` → snapshot `f74a44f9-ff5d-43b7-83f5-ccfc5d845bde` → training run `2230a661-216f-4f50-8322-85445c84b524` → model version `pd-credit-v2.0.0`
 
 ## Target definition and modeling approach
 
@@ -54,7 +54,7 @@ Excluded:
 - Split: stratified (train 18000 / validation 6000 / test 6000 rows)
 - Random seed: `42`; training-data checksum `30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933`
 - Hyperparameters: `{"learning_rate": 0.04, "max_iter": 150, "max_depth": 3, "max_leaf_nodes": 8, "min_samples_leaf": 60, "l2_regularization": 5.0, "early_stopping": false}`
-- Package versions: `{"python": "3.13.15", "numpy": "2.5.3", "pandas": "3.0.6", "scikit-learn": "1.9.1", "scipy": "1.18.1", "joblib": "1.6.0"}`
+- Package versions: `{"python": "3.13.7", "numpy": "2.5.3", "pandas": "3.0.6", "scikit-learn": "1.9.1", "scipy": "1.18.1", "joblib": "1.6.0"}`
 
 ## Performance, calibration, and fairness results
 
@@ -62,11 +62,11 @@ Holdout AUC 0.789 [0.776, 0.804], KS 0.438, Brier 0.1318, ECE 0.0111 versus base
 
 ## Known limitations and failure modes
 
-- Data are synthetic (or a licensed public sample); results do not transfer to any real portfolio.
-- Temporal split (stratified) over a short window; macro regimes are not represented (ADR-0003).
-- Holdout of 6000 rows gives wide confidence intervals; treat differences inside the CI as noise.
+- Public 2005 Taiwanese credit-card sample (UCI 350); results do not transfer to any other market, period or product.
+- No valid time axis, so the split is stratified: there is no out-of-time performance estimate (ADR-0003).
+- Holdout of 6000 rows; treat differences inside the bootstrap CI as noise.
 - The illustrative threshold is not a credit policy; no lending decision should be derived from it.
-- Fairness diagnostics use a synthetic grouping field and are not a legal determination.
+- Fairness diagnostics use the `sex` field (never a model feature) and are not a legal determination.
 
 ## Monitoring plan and alert thresholds
 

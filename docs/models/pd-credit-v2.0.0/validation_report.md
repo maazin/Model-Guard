@@ -27,7 +27,7 @@ policy.
 | Brier score | 0.1318 | 0.1404 |
 | ECE (10 bins) | 0.0111 | 0.0271 |
 
-Holdout rows: 6000; holdout default rate 0.221. Interpretation: AUC/KS measure rank ordering; Brier/ECE measure probability quality. Limitation: bootstrap resamples the temporal holdout only (300 draws); no cross-period stability claim. Artifact: `artifacts/runs/f00486af-7437-48bf-be40-1f2c25d9b5a2/metrics.json`. Reviewer status: pending.
+Holdout rows: 6000; holdout default rate 0.221. Interpretation: AUC/KS measure rank ordering; Brier/ECE measure probability quality. Limitation: bootstrap resamples the temporal holdout only (300 draws); no cross-period stability claim. Artifact: `artifacts/runs/2230a661-216f-4f50-8322-85445c84b524/metrics.json`. Reviewer status: pending.
 
 ## Calibration
 
@@ -86,11 +86,11 @@ Diagnostic only. Computed on an explicitly approved grouping field that is never
 
 ## Limitations
 
-- Data are synthetic (or a licensed public sample); results do not transfer to any real portfolio.
-- Temporal split (stratified) over a short window; macro regimes are not represented (ADR-0003).
-- Holdout of 6000 rows gives wide confidence intervals; treat differences inside the CI as noise.
+- Public 2005 Taiwanese credit-card sample (UCI 350); results do not transfer to any other market, period or product.
+- No valid time axis, so the split is stratified: there is no out-of-time performance estimate (ADR-0003).
+- Holdout of 6000 rows; treat differences inside the bootstrap CI as noise.
 - The illustrative threshold is not a credit policy; no lending decision should be derived from it.
-- Fairness diagnostics use a synthetic grouping field and are not a legal determination.
+- Fairness diagnostics use the `sex` field (never a model feature) and are not a legal determination.
 
 ## Reviewer status
 

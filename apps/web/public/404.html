@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ModelGuard</title>
+    <script>
+      // GitHub Pages SPA fallback: stash the deep link and let index.html's router restore it.
+      sessionStorage.setItem("mg.redirect", location.pathname + location.search);
+      var base = location.pathname.split("/").slice(0, 2).join("/") || "/";
+      location.replace(base + (base.endsWith("/") ? "" : "/"));
+    </script>
+  </head>
+  <body></body>
+</html>

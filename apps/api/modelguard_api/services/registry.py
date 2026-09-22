@@ -163,12 +163,24 @@ def measured_context(mv: ModelVersion) -> dict[str, Any]:
     else:
         fairness = "No grouping field available; see the risk assessment for the documented reason."
     cfg = run.config_json
-    limitations = (
-        "- Data are synthetic (or a licensed public sample); results do not transfer to any real portfolio.\n"
-        f"- Temporal split ({cfg.get('split', {}).get('strategy')}) over a short window; macro regimes are not represented (ADR-0003).\n"
-        f"- Holdout of {int(m['n_holdout']['value'])} rows gives wide confidence intervals; treat differences inside the CI as noise.\n"
-        "- The illustrative threshold is not a credit policy; no lending decision should be derived from it.\n"
-        "- Fairness diagnostics use a synthetic grouping field and are not a legal determination."
+    spec = cfg.get("feature_spec") or {}
+    synthetic = "synthetic" in (spec.get("source_id") or run.snapshot.source_id)
+    split_strategy = cfg.get("split", {}).get("strategy")
+    fairness_field = spec.get("fairness_field") or "fairness_group"
+    limitations = "\n".join(
+        [
+            "- Synthetic data; results do not transfer to any real portfolio."
+            if synthetic
+            else "- Public 2005 Taiwanese credit-card sample (UCI 350); results do not transfer to any other market, period or product.",
+            "- Temporal split over a short window; macro regimes are not represented (ADR-0003)."
+            if split_strategy == "temporal"
+            else "- No valid time axis, so the split is stratified: there is no out-of-time performance estimate (ADR-0003).",
+            f"- Holdout of {int(m['n_holdout']['value'])} rows; treat differences inside the bootstrap CI as noise.",
+            "- The illustrative threshold is not a credit policy; no lending decision should be derived from it.",
+            f"- Fairness diagnostics use the `{fairness_field}` field"
+            + (" (synthetic cohort)" if synthetic else " (never a model feature)")
+            + " and are not a legal determination.",
+        ]
     )
     performance_summary = (
         f"Holdout AUC {_fmt(m['auc']['value'], 3)} [{_fmt(m['auc']['lower_ci'], 3)}, {_fmt(m['auc']['upper_ci'], 3)}], "

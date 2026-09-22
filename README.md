@@ -13,6 +13,8 @@ ModelGuard brings four normally-fragmented workflows into one local-first applic
 3. **Monitor** dated batches for data quality, feature/score drift (PSI), calibration and performance, with an alert → investigate → resolve workflow.
 4. Ask a **retrieval-grounded governance copilot** what is missing before approval. It reads only that version's approved documents, cites document sections, returns a validated JSON structure, and works fully offline with a deterministic rule-based provider.
 
+**Live read-only demo:** https://maazin.github.io/Model-Guard/ — a static snapshot of the seeded registry (all four model versions, including the real-data `pd-credit-v2.0.0`). Approvals, alert resolution and free-form copilot questions need the live API below.
+
 ![Monitoring page](docs/screenshots/monitoring.png)
 
 ## Quick start
@@ -136,6 +138,7 @@ make lint          # ruff + eslint          make typecheck   # mypy + tsc
 make e2e           # Playwright (needs a seeded API on :8000 and `npx playwright install chromium`)
 make secrets-scan  # local scan; CI also runs gitleaks
 make executive-pack  # regenerate memo + deck from the database
+make demo-export     # refresh the static snapshot behind the GitHub Pages demo (commit apps/web/public/demo-data)
 make fixtures      # regenerate synthetic CSVs deterministically
 ```
 

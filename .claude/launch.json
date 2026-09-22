@@ -4,14 +4,33 @@
     {
       "name": "api",
       "runtimeExecutable": ".venv/bin/uvicorn",
-      "runtimeArgs": ["modelguard_api.main:app", "--port", "8010"],
+      "runtimeArgs": [
+        "modelguard_api.main:app",
+        "--port",
+        "8010"
+      ],
       "port": 8010
     },
     {
       "name": "web",
       "runtimeExecutable": "sh",
-      "runtimeArgs": ["-c", "VITE_API_PROXY=http://localhost:8010 npm --prefix apps/web run dev"],
+      "runtimeArgs": [
+        "-c",
+        "VITE_API_PROXY=http://localhost:8010 npm --prefix apps/web run dev"
+      ],
       "port": 5173
+    },
+    {
+      "name": "pages",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8090",
+        "--directory",
+        "/private/tmp/claude-501/-Users-maazinshaikh-Claude-Working-Folder-Make-Here-Model-Guard/33abbdd2-27ff-43e7-bdcf-0aaeeacb0450/scratchpad/pages-root"
+      ],
+      "port": 8090
     }
   ]
 }

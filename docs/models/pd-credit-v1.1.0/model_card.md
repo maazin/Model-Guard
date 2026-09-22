@@ -2,7 +2,7 @@
 document_type: model_card
 title: Model Card
 model_version: pd-credit-v1.1.0
-model_uuid: a0529f76-6ad9-4524-a9e7-f7bcb90f3fe1
+model_uuid: ce936785-4f10-4967-82af-3b74235d4318
 status: complete
 template_version: 1
 ---
@@ -11,10 +11,10 @@ template_version: 1
 
 ## Model name and version
 
-- Name: ModelGuard PD model (`pd-credit-v1.1.0`), immutable UUID `a0529f76-6ad9-4524-a9e7-f7bcb90f3fe1`
+- Name: ModelGuard PD model (`pd-credit-v1.1.0`), immutable UUID `ce936785-4f10-4967-82af-3b74235d4318`
 - Registered model type: **champion** (HistGradientBoostingClassifier)
-- Training run: `4dd2b2d2-9818-4fff-b9df-ff237f74a872`; git SHA `n/a`
-- Created: 2026-09-22T05:39:32
+- Training run: `3cfe2592-a7fa-428f-9537-da9875a02db0`; git SHA `af7a974026660113ec5d2faf76df52b706eb61f2`
+- Created: 2026-09-22T05:53:59
 
 ## Business purpose and intended use
 
@@ -28,7 +28,7 @@ Credit decisions, pricing, collections prioritisation, any real borrower, and an
 
 - Source: `synthetic-loans-v1` — ModelGuard synthetic loan-performance fixture (license: https://opensource.org/license/mit, retrieved 2026-09-22)
 - Snapshot as-of 2023-12-31, 6000 rows, SHA-256 `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`
-- Lineage: source `synthetic-loans-v1` → snapshot `26bc0b93-87df-42aa-8a85-1235d386e5b3` → training run `4dd2b2d2-9818-4fff-b9df-ff237f74a872` → model version `pd-credit-v1.1.0`
+- Lineage: source `synthetic-loans-v1` → snapshot `b730e5ac-1ab1-40de-92ed-f73b3c7128b9` → training run `3cfe2592-a7fa-428f-9537-da9875a02db0` → model version `pd-credit-v1.1.0`
 
 ## Target definition and modeling approach
 
@@ -52,7 +52,7 @@ Excluded:
 - Split: temporal (train 3437 / validation 1262 / test 1301 rows)
 - Random seed: `7`; training-data checksum `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`
 - Hyperparameters: `{"learning_rate": 0.03, "max_iter": 200, "max_depth": 3, "max_leaf_nodes": 8, "min_samples_leaf": 60, "l2_regularization": 5.0, "early_stopping": false}`
-- Package versions: `{"python": "3.13.15", "numpy": "2.5.3", "pandas": "3.0.6", "scikit-learn": "1.9.1", "scipy": "1.18.1", "joblib": "1.6.0"}`
+- Package versions: `{"python": "3.13.7", "numpy": "2.5.3", "pandas": "3.0.6", "scikit-learn": "1.9.1", "scipy": "1.18.1", "joblib": "1.6.0"}`
 
 ## Performance, calibration, and fairness results
 
@@ -60,11 +60,11 @@ Holdout AUC 0.762 [0.718, 0.805], KS 0.410, Brier 0.0833, ECE 0.0082 versus base
 
 ## Known limitations and failure modes
 
-- Data are synthetic (or a licensed public sample); results do not transfer to any real portfolio.
-- Temporal split (temporal) over a short window; macro regimes are not represented (ADR-0003).
-- Holdout of 1301 rows gives wide confidence intervals; treat differences inside the CI as noise.
+- Synthetic data; results do not transfer to any real portfolio.
+- Temporal split over a short window; macro regimes are not represented (ADR-0003).
+- Holdout of 1301 rows; treat differences inside the bootstrap CI as noise.
 - The illustrative threshold is not a credit policy; no lending decision should be derived from it.
-- Fairness diagnostics use a synthetic grouping field and are not a legal determination.
+- Fairness diagnostics use the `fairness_group` field (synthetic cohort) and are not a legal determination.
 
 ## Monitoring plan and alert thresholds
 

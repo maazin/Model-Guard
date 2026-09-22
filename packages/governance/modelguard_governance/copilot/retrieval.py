@@ -26,9 +26,10 @@ def chunk_document(document_id: str, document_type: str, content: str) -> list[C
     _, body = parse_front_matter(content)
     out = []
     for heading, text in sections(body).items():
-        if not text.strip():
+        # Title lines and boilerplate before the first heading are not citable evidence.
+        if not text.strip() or not heading:
             continue
-        out.append(Chunk(document_id, document_type, heading or "Preamble", text.strip()))
+        out.append(Chunk(document_id, document_type, heading, text.strip()))
     return out
 
 

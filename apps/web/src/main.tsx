@@ -11,12 +11,23 @@ import { Monitoring } from "./pages/Monitoring";
 import { Governance } from "./pages/Governance";
 import { Executive } from "./pages/Executive";
 
+// Restore a deep link stashed by public/404.html (GitHub Pages SPA fallback).
+try {
+  const redirect = sessionStorage.getItem("mg.redirect");
+  if (redirect) {
+    sessionStorage.removeItem("mg.redirect");
+    window.history.replaceState(null, "", redirect);
+  }
+} catch {
+  /* ignore */
+}
+
 const client = new QueryClient({ defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } } });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={client}>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Overview />} />

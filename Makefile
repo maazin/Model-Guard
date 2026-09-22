@@ -1,4 +1,4 @@
-.PHONY: help fetch-uci setup dev api web seed migrate test test-unit test-integration e2e lint format typecheck secrets-scan ci docker-up docker-down executive-pack fixtures clean
+.PHONY: help fetch-uci setup demo-export dev api web seed migrate test test-unit test-integration e2e lint format typecheck secrets-scan ci docker-up docker-down executive-pack fixtures clean
 
 PY := .venv/bin/python
 UV := uv
@@ -67,6 +67,9 @@ typecheck: ## mypy + tsc
 
 secrets-scan: ## Local secrets scan (CI runs gitleaks)
 	$(PY) scripts/secrets_scan.py
+
+demo-export: ## Export seeded API responses to apps/web/public/demo-data for the read-only GitHub Pages demo
+	$(PY) scripts/export_static_demo.py
 
 executive-pack: ## Generate executive memo + deck from the seeded run (measured values only)
 	$(PY) scripts/generate_executive_pack.py

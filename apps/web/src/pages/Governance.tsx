@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCurrentUser, useVersion } from "../lib/hooks";
-import { post } from "../lib/api";
+import { STATIC_DEMO, post } from "../lib/api";
 import { Badge, Card, ErrorBox, Loading, fmtDate } from "../components/ui";
 import { DocumentViewer } from "../components/DocumentViewer";
 
@@ -25,7 +25,7 @@ function Copilot({ id }: { id: string }) {
   const r = m.data;
   return (
     <div className="space-y-2">
-      <p className="faint text-xs">Retrieval is limited to this version's governance documents. The copilot cannot approve anything and never sees loan rows.</p>
+      <p className="faint text-xs">Retrieval is limited to this version's governance documents. The copilot cannot approve anything and never sees loan rows.{STATIC_DEMO && " In this hosted demo the answer is precomputed for the default question."}</p>
       <textarea className="btn w-full" rows={2} value={question} onChange={(e) => setQuestion(e.target.value)} aria-label="Copilot question" data-testid="copilot-question" />
       <button className="btn btn-primary" onClick={() => m.mutate()} disabled={m.isPending || !question.trim()} data-testid="copilot-ask">Ask</button>
       {m.error && <ErrorBox error={m.error} />}

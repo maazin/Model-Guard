@@ -94,6 +94,11 @@ class RuleBasedProvider(LLMProvider):
                 f"Model version {ctx.model_version} (state {ctx.state}) has {len(failing)} unmet "
                 f"readiness requirement(s): {names}. Specific gaps include: {first}."
             )
+        elif ctx.state in ("APPROVED", "MONITORING", "RETIRED"):
+            answer = (
+                f"All {len(passing)} readiness checks pass for model version {ctx.model_version}, which is already "
+                f"{ctx.state} with a recorded reviewer decision; no evidence is outstanding."
+            )
         else:
             answer = (
                 f"All {len(passing)} readiness checks pass for model version {ctx.model_version} "
