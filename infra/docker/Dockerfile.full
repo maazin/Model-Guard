@@ -1,0 +1,28 @@
+# Single-container image: FastAPI serves the API and the built dashboard. Used for one-service hosts
+# (Render, Fly.io, Railway). Needs an external PostgreSQL via MODELGUARD_DATABASE_URL (SQLite also works).
+FROM node:20-alpine AS web
+WORKDIR /web
+COPY apps/web/package.json apps/web/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY apps/web ./
+RUN npm run build
+
+FROM python:3.13-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 \
+    MODELGUARD_SERVE_WEB_DIR=/app/web-dist MODELGUARD_ARTIFACT_DIR=/app/artifacts MODELGUARD_ENV=hosted
+RUN apt-get update && apt-get install -y --no-install-recommends git curl && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY pyproject.toml README.md ./
+COPY apps/api ./apps/api
+COPY packages ./packages
+RUN pip install --no-cache-dir -e .
+COPY data ./data
+COPY docs ./docs
+COPY scripts ./scripts
+COPY --from=web /web/dist ./web-dist
+COPY infra/docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh && mkdir -p /app/artifacts
+EXPOSE 8000
+HEALTHCHECK --interval=15s --timeout=3s --retries=20 CMD curl -fsS http://localhost:${PORT:-8000}/health || exit 1
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["sh", "-c", "uvicorn modelguard_api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

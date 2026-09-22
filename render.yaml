@@ -1,0 +1,28 @@
+# Render blueprint: one web service (API + dashboard) and a managed PostgreSQL.
+# In the Render dashboard: New -> Blueprint -> pick this repo. Free tiers spin down when idle.
+services:
+  - type: web
+    name: modelguard
+    runtime: docker
+    dockerfilePath: infra/docker/Dockerfile.full
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: MODELGUARD_DATABASE_URL
+        fromDatabase:
+          name: modelguard-db
+          property: connectionString
+      - key: MODELGUARD_PUBLIC_DEMO
+        value: "true"
+      - key: MODELGUARD_RESET_ON_START
+        value: "true" # every deploy/restart restores the seeded demo state
+      - key: MODELGUARD_N_BOOTSTRAP
+        value: "150" # faster seed on the free tier
+      - key: MODELGUARD_LLM_PROVIDER
+        value: rule_based
+
+databases:
+  - name: modelguard-db
+    plan: free
+    databaseName: modelguard
+    user: modelguard

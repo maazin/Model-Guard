@@ -29,5 +29,21 @@ app.include_router(misc.router)
 
 
 @app.get("/health", tags=["ops"])
-def health() -> dict[str, str]:
-    return {"status": "ok", "env": settings.env}
+def health() -> dict[str, str | bool]:
+    return {"status": "ok", "env": settings.env, "public_demo": settings.public_demo}
+
+
+if settings.serve_web_dir and settings.serve_web_dir.exists():
+    # Single-container deployment: the built dashboard is served by the API process, with an SPA fallback.
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    web_dir = settings.serve_web_dir
+    app.mount("/assets", StaticFiles(directory=web_dir / "assets"), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def spa(full_path: str) -> FileResponse:
+        candidate = web_dir / full_path
+        if full_path and candidate.is_file() and candidate.resolve().is_relative_to(web_dir.resolve()):
+            return FileResponse(candidate)
+        return FileResponse(web_dir / "index.html")
