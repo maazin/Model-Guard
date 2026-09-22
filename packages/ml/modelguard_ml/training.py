@@ -19,13 +19,6 @@ from typing import Any
 import joblib
 import numpy as np
 import pandas as pd
-from modelguard_shared.constants import (
-    CATEGORICAL_FEATURES,
-    EMPLOYMENT_LENGTH_LEVELS,
-    EXCLUDED_FEATURES,
-    MODEL_FEATURES,
-    NUMERIC_FEATURES,
-)
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.impute import SimpleImputer
@@ -37,7 +30,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from modelguard_ml import metrics as M
 from modelguard_ml.drift import numeric_bins, open_edges
 from modelguard_ml.fairness import group_metrics
-from modelguard_ml.splits import SplitResult, temporal_split
+from modelguard_ml.spec import SYNTHETIC_SPEC, FeatureSpec
+from modelguard_ml.splits import SplitResult, choose_split
 from modelguard_ml.stats_tests import two_sample_ks
 
 MODEL_TYPES = ("baseline", "champion")
@@ -65,27 +59,30 @@ def package_versions() -> dict[str, str]:
     return out
 
 
-def build_preprocessor() -> ColumnTransformer:
+def build_preprocessor(spec: FeatureSpec = SYNTHETIC_SPEC) -> ColumnTransformer:
     numeric = Pipeline([("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())])
-    categorical = Pipeline(
-        [
-            ("impute", SimpleImputer(strategy="most_frequent")),
-            (
-                "onehot",
-                OneHotEncoder(
-                    categories=[list(EMPLOYMENT_LENGTH_LEVELS)],
-                    handle_unknown="ignore",
-                    sparse_output=False,
+    transformers: list[tuple[str, Any, list[str]]] = [("num", numeric, list(spec.numeric))]
+    if spec.categorical:
+        categorical = Pipeline(
+            [
+                ("impute", SimpleImputer(strategy="most_frequent")),
+                (
+                    "onehot",
+                    OneHotEncoder(
+                        categories=[list(levels) for levels in spec.categorical.values()],
+                        handle_unknown="ignore",
+                        sparse_output=False,
+                    ),
                 ),
-            ),
-        ]
-    )
-    return ColumnTransformer(
-        [("num", numeric, list(NUMERIC_FEATURES)), ("cat", categorical, list(CATEGORICAL_FEATURES))]
-    )
+            ]
+        )
+        transformers.append(("cat", categorical, list(spec.categorical)))
+    return ColumnTransformer(transformers)
 
 
-def build_pipeline(model_type: str, seed: int, hyperparams: dict[str, Any] | None = None) -> Pipeline:
+def build_pipeline(
+    model_type: str, seed: int, hyperparams: dict[str, Any] | None = None, spec: FeatureSpec = SYNTHETIC_SPEC
+) -> Pipeline:
     hp = {**DEFAULT_HYPERPARAMS[model_type], **(hyperparams or {})}
     if model_type == "baseline":
         est: Any = LogisticRegression(random_state=seed, solver="lbfgs", **hp)
@@ -93,7 +90,7 @@ def build_pipeline(model_type: str, seed: int, hyperparams: dict[str, Any] | Non
         est = HistGradientBoostingClassifier(random_state=seed, **hp)
     else:
         raise ValueError(f"unknown model_type {model_type}")
-    return Pipeline([("prep", build_preprocessor()), ("model", est)])
+    return Pipeline([("prep", build_preprocessor(spec)), ("model", est)])
 
 
 @dataclass
@@ -153,8 +150,9 @@ def evaluate_model(
     seed: int,
     n_bootstrap: int,
     fairness_field: str | None,
+    spec: FeatureSpec = SYNTHETIC_SPEC,
 ) -> ModelEvaluation:
-    X = test[list(MODEL_FEATURES)]
+    X = test[list(spec.features)]
     y = test["default_flag"].to_numpy(dtype=float)
     p = pipe.predict_proba(X)[:, 1]
     auc_ci = M.bootstrap_ci(y, p, M.auc_roc, n_bootstrap=n_bootstrap, seed=seed)
@@ -185,21 +183,23 @@ def evaluate_model(
     )
 
 
-def baseline_distributions(train: pd.DataFrame, pipe: Pipeline, n_bins: int = 10) -> dict[str, Any]:
+def baseline_distributions(
+    train: pd.DataFrame, pipe: Pipeline, n_bins: int = 10, spec: FeatureSpec = SYNTHETIC_SPEC
+) -> dict[str, Any]:
     """Training-cohort reference distributions consumed by the monitoring PSI checks."""
     out: dict[str, Any] = {"numeric": {}, "categorical": {}, "psi_bins": n_bins}
-    for col in NUMERIC_FEATURES:
+    for col in spec.numeric:
         edges = numeric_bins(train[col].to_numpy(dtype=float), n_bins)
         counts, _ = np.histogram(train[col].dropna().to_numpy(dtype=float), bins=open_edges(edges))
         out["numeric"][col] = {
             "edges": [float(e) for e in edges],
             "expected_pct": (counts / max(counts.sum(), 1)).round(6).tolist(),
         }
-    for col in CATEGORICAL_FEATURES + ("region",):
+    for col in tuple(spec.categorical) + spec.monitoring_only:
         if col in train.columns:
             vc = train[col].astype(str).value_counts(normalize=True)
             out["categorical"][col] = {str(k): float(v) for k, v in vc.items()}
-    scores = pipe.predict_proba(train[list(MODEL_FEATURES)])[:, 1]
+    scores = pipe.predict_proba(train[list(spec.features)])[:, 1]
     edges = np.linspace(0, 1, 11)
     counts, _ = np.histogram(scores, bins=edges)
     out["scores"] = {
@@ -220,9 +220,12 @@ def train_models(
     n_bootstrap: int = 300,
     fairness_field: str | None = "fairness_group",
     git_sha: str | None = None,
+    spec: FeatureSpec = SYNTHETIC_SPEC,
 ) -> TrainingResult:
-    """Train baseline + champion on a temporal split; evaluate both on the same holdout."""
-    split: SplitResult = temporal_split(df)
+    """Train baseline + champion on a temporal (or documented stratified) split; evaluate on one holdout."""
+    if spec is not SYNTHETIC_SPEC:
+        fairness_field = spec.fairness_field
+    split: SplitResult = choose_split(df, seed, spec.time_field_valid)
     hp = {k: {**DEFAULT_HYPERPARAMS[k], **(hyperparams or {}).get(k, {})} for k in MODEL_TYPES}
     y_train = split.train["default_flag"].to_numpy(dtype=float)
     y_valid = split.validation["default_flag"].to_numpy(dtype=float)
@@ -230,26 +233,30 @@ def train_models(
     evaluations: dict[str, ModelEvaluation] = {}
     threshold = 0.5
     for mt in MODEL_TYPES:
-        pipe = build_pipeline(mt, seed, hp[mt])
-        pipe.fit(split.train[list(MODEL_FEATURES)], y_train)
+        pipe = build_pipeline(mt, seed, hp[mt], spec)
+        pipe.fit(split.train[list(spec.features)], y_train)
         pipelines[mt] = pipe
     # Illustrative threshold chosen on validation for the champion; reused for both models.
-    p_valid = pipelines["champion"].predict_proba(split.validation[list(MODEL_FEATURES)])[:, 1]
+    p_valid = pipelines["champion"].predict_proba(split.validation[list(spec.features)])[:, 1]
     threshold = _choose_illustrative_threshold(y_valid, p_valid)
     for mt in MODEL_TYPES:
-        evaluations[mt] = evaluate_model(mt, pipelines[mt], split.test, threshold, seed, n_bootstrap, fairness_field)
+        evaluations[mt] = evaluate_model(
+            mt, pipelines[mt], split.test, threshold, seed, n_bootstrap, fairness_field, spec
+        )
+    ht_feature = spec.numeric[0]
     tests = [
         two_sample_ks(
-            split.train["debt_to_income"].to_numpy(dtype=float),
-            split.test["debt_to_income"].to_numpy(dtype=float),
-            "debt_to_income",
+            split.train[ht_feature].to_numpy(dtype=float),
+            split.test[ht_feature].to_numpy(dtype=float),
+            ht_feature,
         )
     ]
     config = {
         "random_seed": seed,
         "split": {"strategy": split.strategy, **split.boundaries, "counts": split.counts()},
-        "features": list(MODEL_FEATURES),
-        "excluded_features": EXCLUDED_FEATURES,
+        "features": list(spec.features),
+        "excluded_features": dict(spec.excluded),
+        "feature_spec": spec.to_dict(),
         "transformations": {
             "numeric": "median impute -> standard scale",
             "categorical": "most-frequent impute -> one-hot (fixed levels, unknown ignored)",
@@ -268,7 +275,7 @@ def train_models(
         split_counts=split.counts(),
         evaluations=evaluations,
         hypothesis_tests=tests,
-        baseline_distributions=baseline_distributions(split.train, pipelines["champion"]),
+        baseline_distributions=baseline_distributions(split.train, pipelines["champion"], spec=spec),
         pipelines=pipelines,
         illustrative_threshold=threshold,
     )

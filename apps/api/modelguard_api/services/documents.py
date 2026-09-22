@@ -6,6 +6,7 @@ import json
 from typing import Any
 
 from modelguard_governance.documents import DocumentType, dump_document, parse_front_matter, render_template
+from modelguard_ml.spec import FeatureSpec
 from modelguard_shared.constants import PSI_ALERT, PSI_INVESTIGATE
 from modelguard_shared.hashing import sha256_text
 from sqlalchemy import select
@@ -27,7 +28,10 @@ def base_context(db: Session, mv: ModelVersion) -> dict[str, Any]:
     counts = split.get("counts", {})
     excluded = "\n".join(f"- `{k}`: {v}" for k, v in (cfg.get("excluded_features") or {}).items())
     algo = "HistGradientBoostingClassifier" if mv.model_type == "champion" else "LogisticRegression (L2)"
+    spec = FeatureSpec.from_dict(cfg["feature_spec"]) if cfg.get("feature_spec") else None
     return {
+        "data_dictionary": spec.dictionary_markdown() if spec else None,
+        "target_definition": spec.target_definition if spec and spec.target_definition else None,
         "version": mv.semantic_version,
         "model_uuid": mv.id,
         "model_type": mv.model_type,

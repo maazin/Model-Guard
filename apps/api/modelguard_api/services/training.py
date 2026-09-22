@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from modelguard_ml.adapters import get_adapter
 from modelguard_ml.training import save_artifacts, train_models
 from modelguard_shared.jsonutil import sanitize
 from sqlalchemy.orm import Session
@@ -75,7 +76,8 @@ def execute_run(run_id: str) -> None:
         db.commit()
         snap = db.get(DataSnapshot, run.snapshot_id)
         assert snap is not None
-        df = load_frame(ROOT / snap.file_path)
+        adapter = get_adapter(snap.source_id)
+        df = adapter.normalize(load_frame(ROOT / snap.file_path))
         result = train_models(
             df,
             seed=run.random_seed,
@@ -83,6 +85,7 @@ def execute_run(run_id: str) -> None:
             hyperparams=run.config_json.get("hyperparameters") or None,
             n_bootstrap=settings.n_bootstrap,
             git_sha=run.git_sha,
+            spec=adapter.spec,
         )
         out_dir = Path(settings.artifact_dir) / "runs" / run.id
         paths = save_artifacts(result, out_dir)

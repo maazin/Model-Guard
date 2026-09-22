@@ -10,18 +10,14 @@ import pandas as pd
 from modelguard_governance.documents import DocumentType, parse_front_matter
 from modelguard_governance.lifecycle import Action, State
 from modelguard_ml import metrics as M
+from modelguard_ml.adapters import get_adapter
 from modelguard_ml.data_quality import run_quality_checks
 from modelguard_ml.drift import categorical_psi, open_edges, psi_from_distributions, psi_status
 from modelguard_ml.fairness import group_metrics
+from modelguard_ml.spec import FeatureSpec
 from modelguard_ml.stats_tests import two_sample_ks
 from modelguard_ml.training import load_pipeline
-from modelguard_shared.constants import (
-    CATEGORICAL_FEATURES,
-    MODEL_FEATURES,
-    NUMERIC_FEATURES,
-    PSI_ALERT,
-    PSI_INVESTIGATE,
-)
+from modelguard_shared.constants import PSI_ALERT, PSI_INVESTIGATE
 from modelguard_shared.jsonutil import sanitize
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -81,9 +77,14 @@ def run_batch(db: Session, mv: ModelVersion, *, snapshot_id: str, user: User) ->
     th = thresholds_for(db, mv)
     run = mv.training_run
     baseline = run.baseline_distributions_json
-    df = load_frame(ROOT / snap.file_path)
+    spec = FeatureSpec.from_dict(run.config_json["feature_spec"])
+    df = get_adapter(snap.source_id).normalize(load_frame(ROOT / snap.file_path))
     quality = run_quality_checks(
-        df, require_target=False, max_null_rate=th["null_rate_max"], max_duplicate_rate=th["duplicate_rate_max"]
+        df,
+        require_target=False,
+        max_null_rate=th["null_rate_max"],
+        max_duplicate_rate=th["duplicate_rate_max"],
+        spec=spec,
     )
     batch = MonitoringBatch(
         model_version_id=mv.id,
@@ -122,7 +123,7 @@ def run_batch(db: Session, mv: ModelVersion, *, snapshot_id: str, user: User) ->
         return batch
 
     # PSI per feature against stored training distributions.
-    for col in NUMERIC_FEATURES:
+    for col in spec.numeric:
         ref = baseline["numeric"][col]
         edges = np.array(ref["edges"], dtype=float)
         cur = pd.to_numeric(df[col], errors="coerce").to_numpy(dtype=float)
@@ -136,7 +137,7 @@ def run_batch(db: Session, mv: ModelVersion, *, snapshot_id: str, user: User) ->
             "actual_pct": (counts / max(counts.sum(), 1)).round(6).tolist(),
             "bins": ref["edges"],
         }
-    for col in CATEGORICAL_FEATURES + ("region",):
+    for col in tuple(spec.categorical) + spec.monitoring_only:
         if col in baseline.get("categorical", {}) and col in df.columns:
             ref = baseline["categorical"][col]
             base_series = pd.Series(list(ref.keys())).repeat([int(round(v * 10000)) for v in ref.values()])
@@ -169,7 +170,7 @@ def run_batch(db: Session, mv: ModelVersion, *, snapshot_id: str, user: User) ->
 
     # Score drift.
     pipe = load_pipeline(mv.artifact_uri)
-    scores = pipe.predict_proba(df[list(MODEL_FEATURES)])[:, 1]
+    scores = pipe.predict_proba(df[list(spec.features)])[:, 1]
     ref_scores = baseline["scores"]
     counts, _ = np.histogram(scores, bins=open_edges(np.array(ref_scores["edges"])))
     sd = {
@@ -206,8 +207,8 @@ def run_batch(db: Session, mv: ModelVersion, *, snapshot_id: str, user: User) ->
         )
 
     # Hypothesis test on the most drifted numeric feature.
-    worst = max(NUMERIC_FEATURES, key=lambda c: results["psi"][c]["psi"])
-    train_df = load_frame(ROOT / run.snapshot.file_path)
+    worst = max(spec.numeric, key=lambda c: results["psi"][c]["psi"])
+    train_df = get_adapter(run.snapshot.source_id).normalize(load_frame(ROOT / run.snapshot.file_path))
     results["hypothesis_test"] = two_sample_ks(
         train_df[worst].to_numpy(dtype=float), pd.to_numeric(df[worst], errors="coerce").to_numpy(dtype=float), worst
     )
@@ -267,9 +268,9 @@ def run_batch(db: Session, mv: ModelVersion, *, snapshot_id: str, user: User) ->
                     {"observed": perf["observed_default_rate"]["value"], "predicted": perf["mean_predicted"]["value"]},
                 )
             )
-        if "fairness_group" in df.columns:
+        if spec.fairness_field and spec.fairness_field in df.columns:
             fair = group_metrics(
-                y, p, df["fairness_group"].to_numpy()[mask], run.config_json.get("illustrative_threshold", 0.5)
+                y, p, df[spec.fairness_field].to_numpy()[mask], run.config_json.get("illustrative_threshold", 0.5)
             )
             results["fairness"] = fair
             if fair["selection_rate_ratio"] < 0.8:

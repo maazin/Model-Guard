@@ -60,7 +60,7 @@ def group_metrics(
         "tpr_difference": float(max(tprs) - min(tprs)) if len(tprs) > 1 else 0.0,
         "fpr_difference": float(max(fprs) - min(fprs)) if len(fprs) > 1 else 0.0,
         "disclaimer": (
-            "Diagnostic only. Computed on a synthetic or explicitly approved grouping field; "
+            "Diagnostic only. Computed on an explicitly approved grouping field that is never a model feature; "
             "not a legal or regulatory fairness determination."
         ),
     }

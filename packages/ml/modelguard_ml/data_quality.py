@@ -7,14 +7,8 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from modelguard_shared.constants import (
-    ALLOWED_RANGES,
-    CATEGORICAL_FEATURES,
-    EMPLOYMENT_LENGTH_LEVELS,
-    NUMERIC_FEATURES,
-    OPTIONAL_COLUMNS,
-    REQUIRED_COLUMNS,
-)
+
+from modelguard_ml.spec import SYNTHETIC_SPEC, FeatureSpec
 
 
 @dataclass
@@ -47,13 +41,15 @@ class QualityReport:
         }
 
 
-def check_schema(df: pd.DataFrame, require_target: bool = True) -> list[QualityIssue]:
+def check_schema(
+    df: pd.DataFrame, require_target: bool = True, spec: FeatureSpec = SYNTHETIC_SPEC
+) -> list[QualityIssue]:
     issues: list[QualityIssue] = []
-    required = [c for c in REQUIRED_COLUMNS if require_target or c != "default_flag"]
+    required = [c for c in spec.required_columns if require_target or c != "default_flag"]
     for col in required:
         if col not in df.columns:
             issues.append(QualityIssue("schema", "error", f"missing required column '{col}'", col))
-    unknown = [c for c in df.columns if c not in REQUIRED_COLUMNS + OPTIONAL_COLUMNS]
+    unknown = [c for c in df.columns if c not in spec.required_columns + spec.optional_columns]
     if unknown:
         issues.append(QualityIssue("schema", "warning", f"unexpected columns ignored: {unknown}"))
     return issues
@@ -65,14 +61,15 @@ def run_quality_checks(
     require_target: bool = True,
     max_null_rate: float = 0.05,
     max_duplicate_rate: float = 0.01,
+    spec: FeatureSpec = SYNTHETIC_SPEC,
 ) -> QualityReport:
-    issues = check_schema(df, require_target=require_target)
+    issues = check_schema(df, require_target=require_target, spec=spec)
     if any(i.severity == "error" for i in issues):
         return QualityReport("fail", len(df), 0.0, {}, None, False, issues)
 
     null_rates = {c: float(df[c].isna().mean()) for c in df.columns}
     for col, rate in null_rates.items():
-        if col in NUMERIC_FEATURES + CATEGORICAL_FEATURES and rate > max_null_rate:
+        if col in spec.features and rate > max_null_rate:
             issues.append(QualityIssue("null_rate", "error", f"null rate {rate:.2%} exceeds {max_null_rate:.0%}", col))
     dup_rate = float(df.duplicated(subset=["loan_id"]).mean()) if len(df) else 0.0
     if dup_rate > max_duplicate_rate:
@@ -82,19 +79,18 @@ def run_quality_checks(
             )
         )
 
-    for col, (lo, hi) in ALLOWED_RANGES.items():
+    for col, (lo, hi) in spec.ranges.items():
         if col not in df.columns:
             continue
         vals = pd.to_numeric(df[col], errors="coerce")
         out = ((vals < lo) | (vals > hi)).sum()
         if out:
             issues.append(QualityIssue("range", "error", f"{int(out)} values outside allowed range [{lo}, {hi}]", col))
-    if "employment_length" in df.columns:
-        bad = set(df["employment_length"].dropna().astype(str)) - set(EMPLOYMENT_LENGTH_LEVELS)
-        if bad:
-            issues.append(
-                QualityIssue("range", "error", f"unknown employment_length levels: {sorted(bad)}", "employment_length")
-            )
+    for col, levels in spec.categorical.items():
+        if col in df.columns:
+            bad = set(df[col].dropna().astype(str)) - set(levels)
+            if bad:
+                issues.append(QualityIssue("range", "error", f"unknown {col} levels: {sorted(bad)}", col))
 
     target_available = bool("default_flag" in df.columns and df["default_flag"].notna().any())
     target_rate: float | None = None
@@ -120,10 +116,10 @@ def run_quality_checks(
     return QualityReport(status, len(df), dup_rate, null_rates, target_rate, target_available, issues)
 
 
-def profile(df: pd.DataFrame) -> dict[str, Any]:
+def profile(df: pd.DataFrame, spec: FeatureSpec = SYNTHETIC_SPEC) -> dict[str, Any]:
     """Descriptive statistics per numeric feature plus target distribution; never row-level data."""
     out: dict[str, Any] = {"numeric": {}, "categorical": {}, "row_count": int(len(df))}
-    for col in NUMERIC_FEATURES:
+    for col in spec.numeric:
         if col in df.columns:
             s = pd.to_numeric(df[col], errors="coerce")
             out["numeric"][col] = {
@@ -136,7 +132,7 @@ def profile(df: pd.DataFrame) -> dict[str, Any]:
                 "max": float(s.max()),
                 "null_rate": float(s.isna().mean()),
             }
-    for col in CATEGORICAL_FEATURES + ("region", "fairness_group"):
+    for col in tuple(spec.categorical) + spec.optional_columns:
         if col in df.columns:
             out["categorical"][col] = {str(k): int(v) for k, v in df[col].astype(str).value_counts().items()}
     if "default_flag" in df.columns:

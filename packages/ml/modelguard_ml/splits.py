@@ -1,10 +1,11 @@
-"""Temporal train/validation/test split (ADR-0003)."""
+"""Temporal train/validation/test split with a documented stratified fallback (ADR-0003)."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 @dataclass
@@ -45,3 +46,26 @@ def temporal_split(df: pd.DataFrame, train_frac: float = 0.6, valid_frac: float 
         "temporal",
         {"train_end": str(t_cut.date()), "validation_end": str(v_cut.date())},
     )
+
+
+def stratified_split(df: pd.DataFrame, seed: int, train_frac: float = 0.6, valid_frac: float = 0.2) -> SplitResult:
+    """Fallback when the source has no valid time axis. Stratified on the target; limitation documented."""
+    rest_frac = 1 - train_frac
+    train, rest = train_test_split(df, test_size=rest_frac, stratify=df["default_flag"], random_state=seed)
+    valid, test = train_test_split(
+        rest, test_size=1 - valid_frac / rest_frac, stratify=rest["default_flag"], random_state=seed
+    )
+    return SplitResult(
+        train.reset_index(drop=True),
+        valid.reset_index(drop=True),
+        test.reset_index(drop=True),
+        "stratified",
+        {"note": "no valid time field; stratified random split, so no out-of-time estimate"},
+    )
+
+
+def choose_split(df: pd.DataFrame, seed: int, time_field_valid: bool) -> SplitResult:
+    """Temporal when the source declares a valid time axis with enough distinct dates, else stratified."""
+    if time_field_valid and "as_of_date" in df.columns and df["as_of_date"].nunique() >= 3:
+        return temporal_split(df)
+    return stratified_split(df, seed)

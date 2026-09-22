@@ -2,7 +2,7 @@
 
 | ADR | Decision | Status |
 | --- | --- | --- |
-| [0001](0001-dataset-and-license.md) | Dataset and license: synthetic fixture now; public dataset requires human license confirmation | Accepted (dataset selection deferred to developer) |
+| [0001](0001-dataset-and-license.md) | Dataset and license: UCI 350 (CC BY 4.0, owner-confirmed) plus the in-repo synthetic fixture | Accepted |
 | [0002](0002-champion-model.md) | Champion = scikit-learn HistGradientBoosting, not XGBoost | Accepted |
 | [0003](0003-temporal-split.md) | Temporal split over stratified | Accepted |
 | [0004](0004-target-and-leakage.md) | Target definition and leakage controls | Accepted |

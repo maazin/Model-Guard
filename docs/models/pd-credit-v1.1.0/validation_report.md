@@ -27,7 +27,7 @@ policy.
 | Brier score | 0.0833 | 0.0828 |
 | ECE (10 bins) | 0.0082 | 0.0134 |
 
-Holdout rows: 1301; holdout default rate 0.104. Interpretation: AUC/KS measure rank ordering; Brier/ECE measure probability quality. Limitation: bootstrap resamples the temporal holdout only (300 draws); no cross-period stability claim. Artifact: `artifacts/runs/a4d5ea06-fef9-46a8-b799-8529d5f13f17/metrics.json`. Reviewer status: pending.
+Holdout rows: 1301; holdout default rate 0.104. Interpretation: AUC/KS measure rank ordering; Brier/ECE measure probability quality. Limitation: bootstrap resamples the temporal holdout only (300 draws); no cross-period stability claim. Artifact: `artifacts/runs/f8d3d4ea-54ee-4da9-9ca7-5ea58945b55b/metrics.json`. Reviewer status: pending.
 
 ## Calibration
 
@@ -67,7 +67,7 @@ Limitation: permutation importance is confounded by correlated features. Reviewe
 
 ## Hypothesis test
 
-Two-sample KS test on `debt_to_income` (train vs. temporal holdout): D = 0.0259, p = 0.5390, Cohen's d = 0.0064, n = 3437 / 1301. H0 not rejected at α = 0.05. Assumptions: independent samples, continuous variable, no ties correction needed. Limitation: Large samples make small shifts statistically significant; interpret alongside the effect size and PSI, and note the test ignores time ordering within cohorts. Reviewer status: pending.
+Two-sample KS test on `annual_income` (train vs. temporal holdout): D = 0.0391, p = 0.1088, Cohen's d = -0.0386, n = 3437 / 1301. H0 not rejected at α = 0.05. Assumptions: independent samples, continuous variable, no ties correction needed. Limitation: Large samples make small shifts statistically significant; interpret alongside the effect size and PSI, and note the test ignores time ordering within cohorts. Reviewer status: pending.
 
 ## Fairness diagnostics
 

@@ -89,6 +89,9 @@ def _resolve_import_path(file_path: str) -> Path:
 def load_frame(path: Path) -> pd.DataFrame:
     if path.suffix == ".parquet":
         return pd.read_parquet(path)
+    if path.suffix in (".xls", ".xlsx"):
+        # UCI 350 ships as .xls with the real header on the second row.
+        return pd.read_excel(path, header=1)
     return pd.read_csv(path)
 
 
@@ -98,8 +101,9 @@ def import_snapshot(
     if not db.get(DataSource, source_id):
         raise not_found("data source", source_id)
     path = _resolve_import_path(file_path)
-    df = get_adapter(source_id).normalize(load_frame(path))
-    report = run_quality_checks(df, require_target=(purpose == "training"))
+    adapter = get_adapter(source_id)
+    df = adapter.normalize(load_frame(path))
+    report = run_quality_checks(df, require_target=(purpose == "training"), spec=adapter.spec)
     snap = DataSnapshot(
         source_id=source_id,
         file_path=str(path.relative_to(ROOT)),
@@ -109,7 +113,7 @@ def import_snapshot(
         schema_hash=sha256_text(json.dumps({c: str(t) for c, t in df.dtypes.items()}, sort_keys=True)),
         quality_status=report.status,
         quality_json=sanitize(report.to_dict()),
-        profile_json=sanitize(profile(df)),
+        profile_json=sanitize(profile(df, adapter.spec)),
         purpose=purpose,
     )
     db.add(snap)

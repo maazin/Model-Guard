@@ -16,14 +16,14 @@ template_version: 1
 
 ## Lineage chain
 
-source `synthetic-loans-v1` → snapshot `844c3cdf-5731-42db-bfde-dd267fcdae28` (as-of 2023-12-31, checksum `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`) → training run `28a38142-0d1c-4e75-8109-79674277933e` → model version `pd-credit-v1.0.0`
+source `synthetic-loans-v1` → snapshot `7b075f8a-a98a-44f9-81c6-c028eeb5f661` (as-of 2023-12-31, checksum `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`) → training run `ddb22272-d9fa-451a-a87b-d246dd6c7b19` → model version `pd-credit-v1.0.0`
 
 ## Data dictionary
 
 | Source field | Normalised field | Type | Allowed range | Transformation | Feature use |
 | --- | --- | --- | --- | --- | --- |
 | loan_id | loan_id | string | pseudonymous hash | none | excluded (identifier) |
-| as_of_date | as_of_date | date | 2022-01 .. | parsed to date | split/batch only |
+| as_of_date | as_of_date | date | 2022-01 .. 2023-12 | parsed to date | split/batch only |
 | default_flag | default_flag | boolean | {0,1} | none | target |
 | annual_income | annual_income | numeric | 0 – 5,000,000 | median impute, standard scale | feature |
 | debt_to_income | debt_to_income | numeric | 0 – 100 | median impute, standard scale | feature |

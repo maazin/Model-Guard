@@ -5,7 +5,8 @@ Prerequisite: `make docker-up` (dashboard on http://localhost:8080) or `make set
 
 | Time | Where | What to show | Say |
 | --- | --- | --- | --- |
-| 0:00 | Portfolio | Three versions with lifecycle state, health, next action | "One model is live and monitored, one is waiting for review, one is blocked." |
+| 0:00 | Portfolio | Four versions with lifecycle state, health, next action | "Two models are live and monitored — one on real CC BY 4.0 data — one is waiting for review, one is blocked." |
+| 0:15 | pd-credit-v2.0.0 → Validation | Real-data holdout: champion 0.789 vs baseline 0.742, fairness on `sex` | "Licensed public data, stratified split documented as a limitation." |
 | 0:30 | pd-credit-v1.0.0 → Version | Lineage block: source, license, checksum, seed, git SHA, split; feature importance | "Every run is reproducible from what you see here." |
 | 1:00 | Validation | Holdout table with bootstrap CIs, ROC, calibration, threshold analysis, fairness, KS test | "Champion vs baseline are inside each other's CI — promotion was a human call." |
 | 1:30 | Monitoring | Three quarterly batches; Q3 PSI alerts; open/resolve an alert with a note | "Deliberately shifted batch trips PSI; every resolution is audit-logged." |

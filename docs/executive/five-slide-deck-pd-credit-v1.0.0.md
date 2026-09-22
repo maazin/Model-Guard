@@ -7,7 +7,7 @@ source: scripts/generate_executive_pack.py (measured values from the seeded demo
 # Slide 1 — Why ModelGuard
 
 - One place to develop, validate, approve, monitor and document a PD model.
-- Portfolio simulation on synthetic data; every control is real, every number is measured.
+- Portfolio simulation on `synthetic-loans-v1`; every control is real, every number is measured.
 - Human approval gate, hash-chained audit log, offline governance copilot.
 
 ---
@@ -28,7 +28,7 @@ Differences sit inside the confidence interval; promotion was a human decision, 
 
 - 8/8 readiness checks pass; an incomplete version (pd-credit-v1.2.0) is blocked with named gaps.
 - 6 controls with owners and test evidence; 8 versioned documents per model.
-- 128 audit events in a verified SHA-256 chain.
+- 189 audit events in a verified SHA-256 chain.
 
 ---
 

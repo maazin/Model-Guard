@@ -1,0 +1,42 @@
+---
+document_type: monitoring_plan
+title: Monitoring Plan
+model_version: pd-credit-v2.0.0
+status: complete
+template_version: 1
+owner: data_scientist
+psi_bins: 10
+alert_thresholds:
+  psi_investigate: 0.1
+  psi_alert: 0.25
+  auc_drop: 0.05
+  null_rate_max: 0.05
+  duplicate_rate_max: 0.01
+cadence: quarterly
+---
+
+# Monitoring Plan — pd-credit-v2.0.0
+
+## Baseline distributions
+
+Stored from the training cohort (train default rate 0.221): quantile bins for `credit_limit`, `utilization_recent`, `utilization_mean`, `pay_status_recent`, `pay_status_max`, `months_delinquent`, `bill_amt_mean`, `pay_amt_mean`, `pay_to_bill_ratio`; level proportions for ; score histogram mean 0.221.
+
+## PSI configuration
+
+10 quantile bins per numeric feature derived from the training cohort; categorical
+features use level proportions; prediction scores use ten equal-width bins on [0, 1].
+
+## Alert thresholds
+
+Configurable project defaults, not regulatory thresholds: PSI < 0.1 stable,
+0.1–0.25 investigate, > 0.25 alert. Holdout AUC drop
+greater than 0.05 raises a performance alert when labels are available. Null rate above
+5% or duplicate rate above 1% raises a data-quality alert.
+
+## Owner and cadence
+
+Owner: data_scientist. Cadence: quarterly batches, or ad hoc after a data-quality incident.
+
+## Escalation
+
+PSI alert or AUC drop beyond threshold -> open alert to the owner within 7 days -> reviewer informed -> retrain or retire decision recorded in the audit log.

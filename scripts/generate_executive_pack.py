@@ -35,9 +35,17 @@ def f(x: float | None, d: int = 3) -> str:
 
 
 def main() -> None:
+    for version in ("pd-credit-v1.0.0", "pd-credit-v2.0.0"):
+        try:
+            build(version)
+        except Exception as exc:  # noqa: BLE001 - v2 only exists when the UCI file is present
+            print(f"skipped {version}: {exc}")
+
+
+def build(version: str) -> None:
     db = SessionLocal()
     try:
-        mv = registry.get_version(db, "pd-credit-v1.0.0")
+        mv = registry.get_version(db, version)
         s = executive.summary(db, mv)
         run = mv.training_run
         counts = {
@@ -81,7 +89,7 @@ source: scripts/generate_executive_pack.py (measured values from the seeded demo
 
 # Executive risk memo — ModelGuard PD model {mv.semantic_version}
 
-> Portfolio simulation on a synthetic dataset. Not credit advice, not a production lending system, and not a compliance claim.
+> Portfolio simulation. Not credit advice, not a production lending system, and not a compliance claim. Data source: `{run.snapshot.source_id}`.
 
 ## Decision requested
 
@@ -89,7 +97,7 @@ source: scripts/generate_executive_pack.py (measured values from the seeded demo
 
 ## What the model is
 
-{s["purpose"]} Registered type **{mv.model_type}** (gradient-boosted trees) compared against a logistic-regression baseline on a temporally later holdout of {int(run.metrics_json[mv.model_type]["metrics"]["n_holdout"]["value"])} loans.
+{s["purpose"]} Data source `{run.snapshot.source_id}`. Registered type **{mv.model_type}** (gradient-boosted trees) compared against a logistic-regression baseline on a {run.config_json.get("split", {}).get("strategy")} holdout of {int(run.metrics_json[mv.model_type]["metrics"]["n_holdout"]["value"])} loans.
 
 ## Current health: **{s["health"].replace("_", " ")}** (state {mv.state})
 
@@ -100,7 +108,7 @@ source: scripts/generate_executive_pack.py (measured values from the seeded demo
 | Brier | {f(h["brier"]["value"], 4)} | {f(c["brier"]["value"], 4)} |
 | ECE | {f(h["ece"]["value"], 4)} | {f(c["ece"]["value"], 4)} |
 
-Fairness diagnostics on the synthetic grouping field: selection-rate ratio {f(fair.get("selection_rate_ratio"))}, TPR difference {f(fair.get("tpr_difference"))}, FPR difference {f(fair.get("fpr_difference"))} (informational only).
+Fairness diagnostics on the `{run.config_json.get("feature_spec", {}).get("fairness_field", "fairness_group")}` grouping field: selection-rate ratio {f(fair.get("selection_rate_ratio"))}, TPR difference {f(fair.get("tpr_difference"))}, FPR difference {f(fair.get("fpr_difference"))} (informational only).
 
 ## Monitoring ({counts["batches"]} quarterly batches)
 
@@ -127,7 +135,7 @@ Fairness diagnostics on the synthetic grouping field: selection-rate ratio {f(fa
 
 {s["next_action"]}
 """
-        (OUT / "risk-memo.md").write_text(memo)
+        (OUT / f"risk-memo-{mv.semantic_version}.md").write_text(memo)
 
         deck = f"""---
 title: ModelGuard — five-slide executive deck
@@ -138,12 +146,12 @@ source: scripts/generate_executive_pack.py (measured values from the seeded demo
 # Slide 1 — Why ModelGuard
 
 - One place to develop, validate, approve, monitor and document a PD model.
-- Portfolio simulation on synthetic data; every control is real, every number is measured.
+- Portfolio simulation on `{run.snapshot.source_id}`; every control is real, every number is measured.
 - Human approval gate, hash-chained audit log, offline governance copilot.
 
 ---
 
-# Slide 2 — Model performance ({mv.semantic_version}, temporal holdout)
+# Slide 2 — Model performance ({mv.semantic_version}, {run.config_json.get("split", {}).get("strategy")} holdout)
 
 | | {mv.model_type} | baseline |
 | --- | --- | --- |
@@ -176,12 +184,12 @@ Differences sit inside the confidence interval; promotion was a human decision, 
 # Slide 5 — Recommendation and limits
 
 - **{s["recommendation"]}**
-- Synthetic data; results do not transfer to a real book.
+- {"Synthetic data" if "synthetic" in run.snapshot.source_id else "Public 2005 Taiwanese credit-card data"}; results do not transfer to a real book.
 - Illustrative threshold only; fairness diagnostics are informational.
 - Next: {s["next_action"]}
 """
-        (OUT / "five-slide-deck.md").write_text(deck)
-        print(f"wrote {OUT / 'risk-memo.md'} and {OUT / 'five-slide-deck.md'}")
+        (OUT / f"five-slide-deck-{mv.semantic_version}.md").write_text(deck)
+        print(f"wrote risk-memo-{mv.semantic_version}.md and five-slide-deck-{mv.semantic_version}.md")
     finally:
         db.close()
 

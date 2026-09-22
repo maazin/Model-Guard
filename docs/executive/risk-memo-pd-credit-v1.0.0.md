@@ -6,7 +6,7 @@ source: scripts/generate_executive_pack.py (measured values from the seeded demo
 
 # Executive risk memo — ModelGuard PD model pd-credit-v1.0.0
 
-> Portfolio simulation on a synthetic dataset. Not credit advice, not a production lending system, and not a compliance claim.
+> Portfolio simulation. Not credit advice, not a production lending system, and not a compliance claim. Data source: `synthetic-loans-v1`.
 
 ## Decision requested
 
@@ -14,7 +14,7 @@ Do not extend use; investigate high-severity drift alerts and consider re-traini
 
 ## What the model is
 
-Probability-of-default scoring on a licensed/synthetic loan-performance dataset. Portfolio simulation; not a lending decision engine. Registered type **champion** (gradient-boosted trees) compared against a logistic-regression baseline on a temporally later holdout of 1301 loans.
+Probability-of-default scoring on a licensed/synthetic loan-performance dataset. Portfolio simulation; not a lending decision engine. Data source `synthetic-loans-v1`. Registered type **champion** (gradient-boosted trees) compared against a logistic-regression baseline on a temporal holdout of 1301 loans.
 
 ## Current health: **at risk** (state MONITORING)
 
@@ -25,7 +25,7 @@ Probability-of-default scoring on a licensed/synthetic loan-performance dataset.
 | Brier | 0.0832 | 0.0828 |
 | ECE | 0.0086 | 0.0134 |
 
-Fairness diagnostics on the synthetic grouping field: selection-rate ratio 0.857, TPR difference 0.072, FPR difference 0.010 (informational only).
+Fairness diagnostics on the `fairness_group` grouping field: selection-rate ratio 0.857, TPR difference 0.072, FPR difference 0.010 (informational only).
 
 ## Monitoring (3 quarterly batches)
 
@@ -40,13 +40,14 @@ Fairness diagnostics on the synthetic grouping field: selection-rate ratio 0.857
 ## Governance evidence
 
 - Readiness: 8/8 deterministic checks pass; 6 controls recorded with owner, frequency and test evidence.
-- Registry: 3 model versions, 2 training runs, 4 data snapshots, 128 hash-chained audit events (chain verified).
+- Registry: 4 model versions, 3 training runs, 8 data snapshots, 189 hash-chained audit events (chain verified).
 
 | Version | Type | State |
 | --- | --- | --- |
 | pd-credit-v1.0.0 | champion | MONITORING |
 | pd-credit-v1.1.0 | champion | PENDING_REVIEW |
 | pd-credit-v1.2.0 | baseline | VALIDATED |
+| pd-credit-v2.0.0 | champion | MONITORING |
 
 ## Limits
 

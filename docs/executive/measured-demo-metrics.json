@@ -1,33 +1,33 @@
 {
-  "measured_at": "2026-09-22T05:02:33.866Z",
+  "measured_at": "2026-09-22T05:35:11.945Z",
   "api_latency": {
     "GET /api/v1/portfolio": {
-      "p50_ms": 107,
-      "p95_ms": 197.5
+      "p50_ms": 165.1,
+      "p95_ms": 241.7
     },
     "GET /api/v1/model-versions/pd-credit-v1.0.0": {
-      "p50_ms": 6.8,
-      "p95_ms": 9.4
+      "p50_ms": 8,
+      "p95_ms": 9.9
     },
     "GET /api/v1/model-versions/pd-credit-v1.0.0/monitoring": {
-      "p50_ms": 7.6,
-      "p95_ms": 8
+      "p50_ms": 8,
+      "p95_ms": 9.5
     },
     "GET /api/v1/executive-summary/pd-credit-v1.0.0": {
-      "p50_ms": 38.4,
-      "p95_ms": 39.9
+      "p50_ms": 42.4,
+      "p95_ms": 45.7
     },
     "POST /api/v1/model-versions/pd-credit-v1.2.0/copilot/query": {
-      "p50_ms": 51.2,
-      "p95_ms": 65.3
+      "p50_ms": 54.8,
+      "p95_ms": 69.1
     }
   },
   "dashboard_load_ms": {
-    "/": 927,
-    "/versions/pd-credit-v1.0.0": 677,
+    "/": 982,
+    "/versions/pd-credit-v1.0.0": 693,
     "/versions/pd-credit-v1.0.0/validation": 643,
-    "/versions/pd-credit-v1.0.0/monitoring": 621,
-    "/versions/pd-credit-v1.2.0/governance": 592,
-    "/versions/pd-credit-v1.0.0/executive": 678
+    "/versions/pd-credit-v1.0.0/monitoring": 578,
+    "/versions/pd-credit-v1.2.0/governance": 669,
+    "/versions/pd-credit-v1.0.0/executive": 647
   }
 }

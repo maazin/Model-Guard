@@ -69,6 +69,7 @@ def test_profile_has_no_row_level_data(df):
 
 def test_column_map_adapter_normalises_and_validates():
     from modelguard_ml.adapters import ColumnMapAdapter, get_adapter
+    from modelguard_ml.spec import SYNTHETIC_SPEC
 
     raw = pd.DataFrame(
         {
@@ -88,10 +89,11 @@ def test_column_map_adapter_normalises_and_validates():
             "annual_income": "inc",
             "debt_to_income": "dti_pct",
         },
+        SYNTHETIC_SPEC,
         {"debt_to_income": lambda s: s.astype(float)},
     )
     out = adapter.normalize(raw)
     assert list(out.columns) == ["loan_id", "as_of_date", "default_flag", "annual_income", "debt_to_income"]
     with pytest.raises(ValueError):
-        ColumnMapAdapter("x", {"loan_id": "nope"}).normalize(raw)
+        ColumnMapAdapter("x", {"loan_id": "nope"}, SYNTHETIC_SPEC).normalize(raw)
     assert get_adapter("synthetic-loans-v1").normalize(generate_loans(n=5, seed=1)).shape[0] == 5

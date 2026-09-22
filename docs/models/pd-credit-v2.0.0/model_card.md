@@ -1,24 +1,24 @@
 ---
 document_type: model_card
 title: Model Card
-model_version: pd-credit-v1.0.0
-model_uuid: 0ca4edc4-6e2d-48f9-8d5a-2661a0bae3fb
+model_version: pd-credit-v2.0.0
+model_uuid: 389c7572-01fb-4ee0-986f-c3c20a4bacd8
 status: complete
 template_version: 1
 ---
 
-# Model Card — pd-credit-v1.0.0
+# Model Card — pd-credit-v2.0.0
 
 ## Model name and version
 
-- Name: ModelGuard PD model (`pd-credit-v1.0.0`), immutable UUID `0ca4edc4-6e2d-48f9-8d5a-2661a0bae3fb`
+- Name: ModelGuard PD model (`pd-credit-v2.0.0`), immutable UUID `389c7572-01fb-4ee0-986f-c3c20a4bacd8`
 - Registered model type: **champion** (HistGradientBoostingClassifier)
-- Training run: `ddb22272-d9fa-451a-a87b-d246dd6c7b19`; git SHA `d4405ab4c010be85850a5adedf3aeb28d1665574`
-- Created: 2026-09-22T05:33:56
+- Training run: `0c08790b-1765-4675-95ad-e64970856238`; git SHA `d4405ab4c010be85850a5adedf3aeb28d1665574`
+- Created: 2026-09-22T05:34:04
 
 ## Business purpose and intended use
 
-Estimate the probability that a consumer instalment loan defaults within the observation window so that portfolio risk can be ranked and monitored. Portfolio simulation only; not used for any real lending decision.
+Estimate the probability that a credit-card holder defaults on next month's payment from six months of billing and repayment history, so that portfolio risk can be ranked and monitored. Portfolio simulation on the public UCI 350 dataset; not used for any real lending decision.
 
 ## Out-of-scope uses
 
@@ -26,43 +26,45 @@ Credit decisions, pricing, collections prioritisation, any real borrower, and an
 
 ## Data source, license, and lineage
 
-- Source: `synthetic-loans-v1` — ModelGuard synthetic loan-performance fixture (license: https://opensource.org/license/mit, retrieved 2026-09-22)
-- Snapshot as-of 2023-12-31, 6000 rows, SHA-256 `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`
-- Lineage: source `synthetic-loans-v1` → snapshot `7b075f8a-a98a-44f9-81c6-c028eeb5f661` → training run `ddb22272-d9fa-451a-a87b-d246dd6c7b19` → model version `pd-credit-v1.0.0`
+- Source: `uci-credit-default-2005` — UCI 350 - Default of Credit Card Clients (Yeh & Lien, 2009) (license: https://creativecommons.org/licenses/by/4.0/, retrieved 2026-09-22)
+- Snapshot as-of 2005-09-30, 30000 rows, SHA-256 `30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933`
+- Lineage: source `uci-credit-default-2005` → snapshot `cc3cd13a-4087-4b71-9f0d-96105b222dc9` → training run `0c08790b-1765-4675-95ad-e64970856238` → model version `pd-credit-v2.0.0`
 
 ## Target definition and modeling approach
 
-`default_flag` = 1 when the synthetic borrower defaults within the observation window. Leakage controls: no post-outcome fields exist in the schema; `as_of_date` is used only for the temporal split; identifiers and geography are excluded (ADR-0004).
+`default_flag` = UCI variable `default payment next month` (October 2005). Leakage controls: only April to September 2005 billing/payment history is used; identifiers and demographic fields (sex, age, education, marriage) are excluded from features (ADR-0004); `sex` is retained solely for fairness diagnostics.
 
 Baseline: L2-regularised logistic regression. Champion candidate: scikit-learn
 `HistGradientBoostingClassifier` (ADR-0002). Both share one preprocessing pipeline.
 
 ## Feature list and excluded-feature rationale
 
-Features: `annual_income`, `debt_to_income`, `loan_amount`, `interest_rate`, `term_months`, `credit_history_length`, `employment_length`
+Features: `credit_limit`, `utilization_recent`, `utilization_mean`, `pay_status_recent`, `pay_status_max`, `months_delinquent`, `bill_amt_mean`, `pay_amt_mean`, `pay_to_bill_ratio`
 
 Excluded:
-- `loan_id`: Identifier; no predictive meaning and would leak record identity.
-- `as_of_date`: Used only for temporal splitting and batch assignment.
-- `region`: Geographic proxy for protected characteristics; retained for monitoring only.
-- `fairness_group`: Synthetic fairness cohort used solely for diagnostics, never as a feature.
+- `loan_id`: Pseudonymous hash of the source ID; identifiers carry no predictive meaning.
+- `as_of_date`: Constant (September 2005 snapshot); used only for batch assignment.
+- `sex`: Protected characteristic; retained solely for fairness diagnostics, never a feature.
+- `age`: Protected/age-related characteristic; excluded from features by design.
+- `education`: Socio-economic proxy with unclear coding (levels 0, 5, 6 undocumented); excluded.
+- `marriage`: Protected/family-status proxy; excluded from features by design.
 
 ## Training/validation split and reproducibility settings
 
-- Split: temporal (train 3437 / validation 1262 / test 1301 rows)
-- Random seed: `42`; training-data checksum `a68e05490331bb5348c17eb92620715db7eb86ac91f4b1a83ce8b49af353174b`
+- Split: stratified (train 18000 / validation 6000 / test 6000 rows)
+- Random seed: `42`; training-data checksum `30c6be3abd8dcfd3e6096c828bad8c2f011238620f5369220bd60cfc82700933`
 - Hyperparameters: `{"learning_rate": 0.04, "max_iter": 150, "max_depth": 3, "max_leaf_nodes": 8, "min_samples_leaf": 60, "l2_regularization": 5.0, "early_stopping": false}`
 - Package versions: `{"python": "3.13.7", "numpy": "2.5.3", "pandas": "3.0.6", "scikit-learn": "1.9.1", "scipy": "1.18.1", "joblib": "1.6.0"}`
 
 ## Performance, calibration, and fairness results
 
-Holdout AUC 0.764 [0.723, 0.801], KS 0.409, Brier 0.0832, ECE 0.0086 versus baseline AUC 0.771. Fairness: selection-rate ratio 0.857. Full detail in the validation report.
+Holdout AUC 0.789 [0.776, 0.804], KS 0.438, Brier 0.1318, ECE 0.0111 versus baseline AUC 0.742. Fairness: selection-rate ratio 0.873. Full detail in the validation report.
 
 ## Known limitations and failure modes
 
 - Data are synthetic (or a licensed public sample); results do not transfer to any real portfolio.
-- Temporal split (temporal) over a short window; macro regimes are not represented (ADR-0003).
-- Holdout of 1301 rows gives wide confidence intervals; treat differences inside the CI as noise.
+- Temporal split (stratified) over a short window; macro regimes are not represented (ADR-0003).
+- Holdout of 6000 rows gives wide confidence intervals; treat differences inside the CI as noise.
 - The illustrative threshold is not a credit policy; no lending decision should be derived from it.
 - Fairness diagnostics use a synthetic grouping field and are not a legal determination.
 

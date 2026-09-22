@@ -1,4 +1,4 @@
-.PHONY: help setup dev api web seed migrate test test-unit test-integration e2e lint format typecheck secrets-scan ci docker-up docker-down executive-pack fixtures clean
+.PHONY: help fetch-uci setup dev api web seed migrate test test-unit test-integration e2e lint format typecheck secrets-scan ci docker-up docker-down executive-pack fixtures clean
 
 PY := .venv/bin/python
 UV := uv
@@ -16,6 +16,16 @@ migrate: ## Apply database migrations
 
 seed: migrate ## Seed the demo registry (three versions, monitoring batches, alerts)
 	$(PY) apps/api/modelguard_api/seed.py
+
+fetch-uci: ## Download the CC BY 4.0 UCI 350 dataset after you confirm the license (5.3 MB)
+	@echo "UCI 350 'Default of Credit Card Clients' is licensed CC BY 4.0 (attribution required)."
+	@echo "Citation: Yeh, I. (2009). Default of Credit Card Clients. UCI ML Repository. https://doi.org/10.24432/C55S3H"
+	@echo "See docs/data-sources/uci-credit-default-2005.md. The file is stored under data/sources/ (git-ignored)."
+	@read -p "Confirm you accept the license terms and want to download (y/N): " ans; [ "$$ans" = "y" ] || exit 1
+	mkdir -p data/sources/uci-credit-default-2005
+	curl -sSL -o data/sources/uci-credit-default-2005/uci-350.zip "https://archive.ics.uci.edu/static/public/350/default+of+credit+card+clients.zip"
+	cd data/sources/uci-credit-default-2005 && unzip -o -q uci-350.zip && shasum -a 256 "default of credit card clients.xls"
+	$(PY) scripts/generate_uci_batches.py
 
 fixtures: ## Regenerate synthetic fixture CSVs
 	$(PY) scripts/generate_fixtures.py

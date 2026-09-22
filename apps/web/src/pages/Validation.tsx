@@ -28,13 +28,16 @@ export function Validation() {
   const conf = a.confusion;
   const fair = a.fairness;
   const ht = a.hypothesis_test?.[0];
+  const cfg = v.training_run.config_json ?? {};
+  const splitLabel = cfg.split?.strategy === "temporal" ? "temporal test partition" : `${cfg.split?.strategy ?? "holdout"} test partition — no out-of-time estimate`;
+  const fairnessField = cfg.feature_spec?.fairness_field ?? "fairness_group";
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold">Validation · {v.semantic_version}</h1>
         <Badge value={v.state} />
       </div>
-      <Card title="Holdout comparison (temporal test partition)">
+      <Card title={`Holdout comparison (${splitLabel})`}>
         <table className="data">
           <thead>
             <tr><th>Metric</th><th>{v.model_type} (registered)</th><th>{v.model_type === "champion" ? "baseline" : "champion"}</th></tr>
@@ -105,7 +108,7 @@ export function Validation() {
         </Card>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Fairness diagnostics (synthetic grouping field)">
+        <Card title={`Fairness diagnostics (grouping field: ${fairnessField}; never a model feature)`}>
           {fair ? (
             <>
               <div className="mb-2 flex flex-wrap gap-4 text-sm">
@@ -121,7 +124,7 @@ export function Validation() {
                   ))}
                 </tbody>
               </table>
-              <p className="faint mt-2 text-xs">{fair.disclaimer}</p>
+              <p className="faint mt-2 text-xs">Diagnostic only; not a legal or regulatory fairness determination.</p>
             </>
           ) : (
             <p className="muted text-sm">No grouping field available; see the risk assessment for the documented reason.</p>
