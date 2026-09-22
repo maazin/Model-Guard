@@ -11,3 +11,7 @@ This directory is git-ignored. Before adding a file:
    `packages/ml/modelguard_ml/adapters.py` and document each transformation in the data dictionary.
 
 Nothing is downloaded automatically. See ADR-0001.
+
+## Included file
+
+`uci-credit-default-2005/default of credit card clients.xls` — UCI 350, CC BY 4.0. Yeh, I. (2009). Default of Credit Card Clients [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C55S3H. Committed so that Docker, CI and hosted deployments build the real-data model version; monitoring batches are regenerated from it by the seed.

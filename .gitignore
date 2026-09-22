@@ -27,6 +27,10 @@ artifacts/*
 data/sources/*
 !data/sources/README.md
 !data/sources/.gitkeep
+# UCI 350 raw file is CC BY 4.0 (attribution in docs/data-sources/uci-credit-default-2005.md); committed so every build has it.
+!data/sources/uci-credit-default-2005/
+data/sources/uci-credit-default-2005/*
+!data/sources/uci-credit-default-2005/default of credit card clients.xls
 
 # OS/IDE
 .DS_Store
