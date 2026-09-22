@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import pytest
-
 from modelguard_ml import drift
 from modelguard_ml.fairness import group_metrics
 from modelguard_ml.stats_tests import two_sample_ks

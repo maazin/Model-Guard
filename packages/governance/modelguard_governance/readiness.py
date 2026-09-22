@@ -118,7 +118,9 @@ def check_model_documentation(ev: ReadinessEvidence) -> CheckResult:
 
 def check_validation(ev: ReadinessEvidence) -> CheckResult:
     missing = [f"holdout metric '{m}' not recorded" for m in REQUIRED_HOLDOUT_METRICS if m not in ev.holdout_metrics]
-    missing += [f"validation artifact '{a}' missing" for a in REQUIRED_VALIDATION_ARTIFACTS if a not in ev.validation_artifacts]
+    missing += [
+        f"validation artifact '{a}' missing" for a in REQUIRED_VALIDATION_ARTIFACTS if a not in ev.validation_artifacts
+    ]
     missing += _doc_missing(ev, DocumentType.VALIDATION_REPORT, "Validation report")
     return _result(
         "validation",
@@ -148,9 +150,7 @@ def check_fairness_assessment(ev: ReadinessEvidence) -> CheckResult:
     if ev.fairness_metrics_present:
         missing += _doc_missing(ev, DocumentType.RISK_ASSESSMENT, "AI/model risk assessment")
     elif not ev.fairness_unavailable_reason:
-        missing.append(
-            "no fairness metrics recorded and no documented reason the grouping field is unavailable"
-        )
+        missing.append("no fairness metrics recorded and no documented reason the grouping field is unavailable")
     return _result(
         "fairness_assessment",
         missing,

@@ -13,7 +13,6 @@ from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
-
 from modelguard_shared.constants import EMPLOYMENT_LENGTH_LEVELS
 
 
@@ -113,7 +112,16 @@ def generate_loans(
 MONITORING_BATCH_SPECS: list[tuple[str, Shift]] = [
     ("2024-03-31", Shift()),
     ("2024-06-30", Shift(income_mult=0.93, dti_add=2.5, rate_add=0.8)),
-    ("2024-09-30", Shift(income_mult=0.85, dti_add=9.0, rate_add=3.5, employment_probs=[0.35, 0.30, 0.15, 0.12, 0.08], default_logit_add=0.4)),
+    (
+        "2024-09-30",
+        Shift(
+            income_mult=0.85,
+            dti_add=9.0,
+            rate_add=3.5,
+            employment_probs=[0.35, 0.30, 0.15, 0.12, 0.08],
+            default_logit_add=0.4,
+        ),
+    ),
 ]
 
 

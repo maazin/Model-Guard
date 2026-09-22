@@ -1,5 +1,4 @@
 import pytest
-
 from modelguard_governance.lifecycle import (
     TRANSITIONS,
     Action,

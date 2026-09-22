@@ -1,8 +1,7 @@
 import numpy as np
 import pytest
-from sklearn.metrics import brier_score_loss, roc_auc_score
-
 from modelguard_ml import metrics as M
+from sklearn.metrics import brier_score_loss, roc_auc_score
 
 
 @pytest.fixture

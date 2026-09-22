@@ -6,7 +6,6 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-
 from modelguard_shared.constants import PSI_ALERT, PSI_INVESTIGATE
 
 
@@ -28,9 +27,14 @@ def numeric_bins(baseline: np.ndarray, n_bins: int = 10) -> np.ndarray:
     x = np.asarray(baseline, dtype=float)
     x = x[~np.isnan(x)]
     qs = np.quantile(x, np.linspace(0, 1, n_bins + 1))
-    edges = np.unique(qs)
-    edges[0], edges[-1] = -np.inf, np.inf
-    return edges
+    return np.unique(qs)  # finite (JSON-safe); widen with `open_edges` when binning
+
+
+def open_edges(edges: np.ndarray) -> np.ndarray:
+    """Copy of the edges with the outer bins extended to +/-inf so out-of-range values count."""
+    e = np.asarray(edges, dtype=float).copy()
+    e[0], e[-1] = -np.inf, np.inf
+    return e
 
 
 def numeric_psi(baseline: np.ndarray, current: np.ndarray, edges: np.ndarray | None = None) -> dict[str, Any]:
@@ -38,8 +42,8 @@ def numeric_psi(baseline: np.ndarray, current: np.ndarray, edges: np.ndarray | N
     c = np.asarray(current, dtype=float)
     b, c = b[~np.isnan(b)], c[~np.isnan(c)]
     edges = numeric_bins(b) if edges is None else np.asarray(edges, dtype=float)
-    eb, _ = np.histogram(b, bins=edges)
-    ab, _ = np.histogram(c, bins=edges)
+    eb, _ = np.histogram(b, bins=open_edges(edges))
+    ab, _ = np.histogram(c, bins=open_edges(edges))
     value = psi_from_distributions(eb, ab)
     return {
         "psi": value,
@@ -74,9 +78,7 @@ def psi_status(value: float, investigate: float = PSI_INVESTIGATE, alert: float 
 
 def score_drift(baseline_scores: np.ndarray, current_scores: np.ndarray) -> dict[str, Any]:
     """PSI on predicted probabilities plus simple summary shifts."""
-    edges = np.linspace(0, 1, 11)
-    edges[0], edges[-1] = -np.inf, np.inf
-    out = numeric_psi(baseline_scores, current_scores, edges)
+    out = numeric_psi(baseline_scores, current_scores, np.linspace(0, 1, 11))
     out.update(
         {
             "baseline_mean": float(np.mean(baseline_scores)),

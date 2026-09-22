@@ -1,8 +1,8 @@
 """Model version lifecycle state machine.
 
-    DRAFT -> VALIDATED -> PENDING_REVIEW -> APPROVED -> MONITORING -> RETIRED
-                             |                 |
-                             +-> REJECTED <----+
+DRAFT -> VALIDATED -> PENDING_REVIEW -> APPROVED -> MONITORING -> RETIRED
+                         |                 |
+                         +-> REJECTED <----+
 """
 
 from __future__ import annotations
@@ -72,7 +72,7 @@ validation only proves the metrics exist; editing documentation resets nothing q
 Training configuration is never modifiable after registration."""
 
 
-def next_state(current: State, action: Action) -> State:
+def next_state(current: State | str, action: Action | str) -> State:
     try:
         return TRANSITIONS[(State(current), Action(action))]
     except KeyError as exc:

@@ -1,5 +1,4 @@
 import pytest
-
 from modelguard_governance.documents import DocumentType
 from modelguard_governance.readiness import (
     CHECK_NAMES,
@@ -22,16 +21,31 @@ def complete_doc(doc_type: DocumentType) -> dict:
 
 def complete_evidence() -> ReadinessEvidence:
     return ReadinessEvidence(
-        source={"id": "src", "doc_path": "docs/data-sources/src.md", "retrieval_date": "2026-01-01", "license_url": "https://x"},
+        source={
+            "id": "src",
+            "doc_path": "docs/data-sources/src.md",
+            "retrieval_date": "2026-01-01",
+            "license_url": "https://x",
+        },
         snapshot={"checksum": "abc", "quality_status": "pass"},
         documents={t.value: complete_doc(t) for t in DocumentType},
         holdout_metrics={"auc", "ks", "brier", "ece"},
         validation_artifacts={"calibration", "threshold_analysis", "feature_importance", "hypothesis_test"},
-        monitoring_plan={"psi_bins": 10, "alert_thresholds": {"psi_investigate": 0.1, "psi_alert": 0.25, "auc_drop": 0.05}, "owner": "ds"},
+        monitoring_plan={
+            "psi_bins": 10,
+            "alert_thresholds": {"psi_investigate": 0.1, "psi_alert": 0.25, "auc_drop": 0.05},
+            "owner": "ds",
+        },
         has_baseline_distributions=True,
         fairness_metrics_present=True,
         controls=[
-            {"control_name": f"c{i}", "owner": "o", "frequency": "monthly", "evidence_uri": "x", "status": "implemented"}
+            {
+                "control_name": f"c{i}",
+                "owner": "o",
+                "frequency": "monthly",
+                "evidence_uri": "x",
+                "status": "implemented",
+            }
             for i in range(3)
         ],
         security={"secrets_scan": "pass", "raw_rows_in_logs": False},

@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-
 from modelguard_ml.splits import temporal_split
 from modelguard_ml.synthetic import generate_loans
 from modelguard_ml.training import load_pipeline, save_artifacts, train_models

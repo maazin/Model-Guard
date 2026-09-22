@@ -1,8 +1,6 @@
 import json
 
 import pytest
-from pydantic import ValidationError
-
 from modelguard_governance.copilot.provider import (
     CopilotContext,
     RuleBasedProvider,
@@ -14,6 +12,7 @@ from modelguard_governance.copilot.provider import (
 from modelguard_governance.copilot.retrieval import chunk_document
 from modelguard_governance.copilot.schema import DISCLAIMER, CopilotResponse, safe_fallback
 from modelguard_governance.copilot.service import answer_question
+from pydantic import ValidationError
 
 DOCS = [
     {
@@ -32,13 +31,21 @@ DOCS = [
 READINESS = [
     {"check_name": "dataset_lineage", "status": "pass", "missing": [], "evidence": {"source": "x"}},
     {"check_name": "monitoring_plan", "status": "fail", "missing": ["monitoring plan has no owner"], "evidence": {}},
-    {"check_name": "controls", "status": "fail", "missing": ["control matrix has 0 controls; at least 3 required"], "evidence": {"controls": []}},
+    {
+        "check_name": "controls",
+        "status": "fail",
+        "missing": ["control matrix has 0 controls; at least 3 required"],
+        "evidence": {"controls": []},
+    },
 ]
 
 
 def test_chunking_yields_section_citations():
     chunks = chunk_document("model-card-v1", "model_card", DOCS[0]["content"])
-    assert [c.section for c in chunks] == ["Known limitations and failure modes", "Monitoring plan and alert thresholds"]
+    assert [c.section for c in chunks] == [
+        "Known limitations and failure modes",
+        "Monitoring plan and alert thresholds",
+    ]
 
 
 def test_rule_based_identifies_gaps_with_citations():
@@ -67,7 +74,9 @@ def test_schema_rejects_bad_confidence_and_extra_fields():
 
 
 def test_parse_llm_json_accepts_valid_and_rejects_invalid():
-    good = json.dumps({"answer": "a", "missing_requirements": [], "citations": [], "confidence": "low", "disclaimer": "spoofed"})
+    good = json.dumps(
+        {"answer": "a", "missing_requirements": [], "citations": [], "confidence": "low", "disclaimer": "spoofed"}
+    )
     assert parse_llm_json(good).disclaimer == DISCLAIMER
     with pytest.raises((ValidationError, ValueError)):
         parse_llm_json("not json at all")
@@ -89,7 +98,12 @@ class BrokenProvider(ValidatedLLMProvider):
 
 @pytest.mark.parametrize(
     "raw",
-    ["{{{ malformed", json.dumps({"answer": "x"}), RuntimeError("network down"), json.dumps({"answer": "ok", "confidence": "high", "citations": [{"document_id": "evil", "section": "x"}]})],
+    [
+        "{{{ malformed",
+        json.dumps({"answer": "x"}),
+        RuntimeError("network down"),
+        json.dumps({"answer": "ok", "confidence": "high", "citations": [{"document_id": "evil", "section": "x"}]}),
+    ],
 )
 def test_malformed_llm_output_fails_safe(raw):
     r = answer_question(

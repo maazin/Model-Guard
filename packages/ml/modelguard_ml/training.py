@@ -19,6 +19,13 @@ from typing import Any
 import joblib
 import numpy as np
 import pandas as pd
+from modelguard_shared.constants import (
+    CATEGORICAL_FEATURES,
+    EMPLOYMENT_LENGTH_LEVELS,
+    EXCLUDED_FEATURES,
+    MODEL_FEATURES,
+    NUMERIC_FEATURES,
+)
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.impute import SimpleImputer
@@ -28,17 +35,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from modelguard_ml import metrics as M
-from modelguard_ml.drift import numeric_bins
+from modelguard_ml.drift import numeric_bins, open_edges
 from modelguard_ml.fairness import group_metrics
 from modelguard_ml.splits import SplitResult, temporal_split
 from modelguard_ml.stats_tests import two_sample_ks
-from modelguard_shared.constants import (
-    CATEGORICAL_FEATURES,
-    EMPLOYMENT_LENGTH_LEVELS,
-    EXCLUDED_FEATURES,
-    MODEL_FEATURES,
-    NUMERIC_FEATURES,
-)
 
 MODEL_TYPES = ("baseline", "champion")
 DEFAULT_HYPERPARAMS: dict[str, dict[str, Any]] = {
@@ -66,9 +66,7 @@ def package_versions() -> dict[str, str]:
 
 
 def build_preprocessor() -> ColumnTransformer:
-    numeric = Pipeline(
-        [("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())]
-    )
+    numeric = Pipeline([("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())])
     categorical = Pipeline(
         [
             ("impute", SimpleImputer(strategy="most_frequent")),
@@ -192,7 +190,7 @@ def baseline_distributions(train: pd.DataFrame, pipe: Pipeline, n_bins: int = 10
     out: dict[str, Any] = {"numeric": {}, "categorical": {}, "psi_bins": n_bins}
     for col in NUMERIC_FEATURES:
         edges = numeric_bins(train[col].to_numpy(dtype=float), n_bins)
-        counts, _ = np.histogram(train[col].dropna().to_numpy(dtype=float), bins=edges)
+        counts, _ = np.histogram(train[col].dropna().to_numpy(dtype=float), bins=open_edges(edges))
         out["numeric"][col] = {
             "edges": [float(e) for e in edges],
             "expected_pct": (counts / max(counts.sum(), 1)).round(6).tolist(),
@@ -239,9 +237,7 @@ def train_models(
     p_valid = pipelines["champion"].predict_proba(split.validation[list(MODEL_FEATURES)])[:, 1]
     threshold = _choose_illustrative_threshold(y_valid, p_valid)
     for mt in MODEL_TYPES:
-        evaluations[mt] = evaluate_model(
-            mt, pipelines[mt], split.test, threshold, seed, n_bootstrap, fairness_field
-        )
+        evaluations[mt] = evaluate_model(mt, pipelines[mt], split.test, threshold, seed, n_bootstrap, fairness_field)
     tests = [
         two_sample_ks(
             split.train["debt_to_income"].to_numpy(dtype=float),
