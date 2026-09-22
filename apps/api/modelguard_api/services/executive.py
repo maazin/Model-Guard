@@ -64,11 +64,13 @@ def summary(db: Session, mv: ModelVersion) -> dict[str, Any]:
         "model_version_id": mv.id,
         "state": mv.state,
         "model_type": mv.model_type,
-        "purpose": "Probability-of-default scoring on a licensed/synthetic loan-performance dataset. Portfolio simulation; not a lending decision engine.",
+        "purpose": (mv.narrative_json or {}).get("business_purpose")
+        or "Probability-of-default scoring for portfolio risk ranking. Portfolio simulation; not a lending decision engine.",
         "limits": [
-            "Not credit advice; illustrative threshold only.",
-            "Synthetic or public sample data; results do not transfer to a real book.",
-            "Fairness diagnostics are informational, not a legal determination.",
+            "Not credit advice: the cut-off shown is illustrative, not a lending policy.",
+            "Built on a public sample or synthetic data; results do not transfer to a real portfolio.",
+            "Fairness figures are for discussion, not a legal determination.",
+            "Approval here is a simulated governance step, not regulatory compliance.",
         ],
         "health": health,
         "holdout": {k: v for k, v in holdout.items() if k in ("auc", "ks", "brier", "ece")},

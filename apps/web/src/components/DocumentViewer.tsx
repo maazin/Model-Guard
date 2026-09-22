@@ -19,14 +19,13 @@ export function DocumentViewer({ versionId, type }: { versionId: string; type: s
     <div>
       <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
         <Badge value={d.status} />
-        <span className="muted">v{d.version}</span>
-        <code className="faint">{d.content_hash.slice(0, 12)}</code>
-        <span className="faint">{d.path}</span>
+        <span className="muted">revision {d.version}</span>
+        <span className="faint hidden sm:inline">{d.path}</span>
         <a className="btn ml-auto" href={STATIC_DEMO ? `${REPO_URL}/blob/main/${d.path}` : `${API_BASE}/api/v1/model-versions/${versionId}/documents/${type}/download`} target="_blank" rel="noreferrer">
-          {STATIC_DEMO ? "View .md on GitHub" : "Download .md"}
+          {STATIC_DEMO ? "Open on GitHub" : "Download"}
         </a>
       </div>
-      <div className="prose-doc max-h-[60vh] overflow-auto rounded border p-3" style={{ borderColor: "var(--border)" }}>
+      <div className="prose-doc max-h-[60vh] overflow-auto rounded-xl border p-4 hairline">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{stripFrontMatter(d.content)}</ReactMarkdown>
       </div>
     </div>

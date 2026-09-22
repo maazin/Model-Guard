@@ -17,24 +17,24 @@ test("reviewer rejects, data scientist corrects, reviewer approves; audit log re
   await actAs(page, "reviewer");
   await page.locator("#rationale").fill("Reject: please add the Q3 drift discussion to the change log.");
   await page.getByTestId("reject").click();
-  await expect(page.locator("main h1").first().locator("..").getByText("REJECTED")).toBeVisible();
+  await expect(page.locator("main h1").first().locator("..").getByText("Rejected")).toBeVisible();
 
   await actAs(page, "data_scientist");
   await page.getByRole("button", { name: "Reopen as draft" }).click();
-  await page.getByRole("button", { name: "Run validation suite" }).click();
-  await expect(page.locator("main h1").first().locator("..").getByText("VALIDATED")).toBeVisible();
+  await page.getByRole("button", { name: "Run validation", exact: true }).click();
+  await expect(page.locator("main h1").first().locator("..").getByText("Validated")).toBeVisible();
   await page.getByTestId("submit-review").click();
-  await expect(page.locator("main h1").first().locator("..").getByText("PENDING REVIEW")).toBeVisible();
+  await expect(page.locator("main h1").first().locator("..").getByText("Awaiting review")).toBeVisible();
 
   await actAs(page, "reviewer");
   await page.locator("#rationale").fill("Approve: change log updated, package complete.");
   await page.getByTestId("approve").click();
-  await expect(page.locator("main h1").first().locator("..").getByText("APPROVED")).toBeVisible();
+  await expect(page.locator("main h1").first().locator("..").getByText("Approved", { exact: true })).toBeVisible();
 
   await page.goto("/versions/pd-credit-v1.1.0");
   const audit = page.locator("table.data");
-  await expect(audit.getByText("model_version.reject")).toBeVisible();
-  await expect(audit.getByText("model_version.approve")).toBeVisible();
+  await expect(audit.getByText("Rejected", { exact: true }).first()).toBeVisible();
+  await expect(audit.getByText("Approved", { exact: true }).first()).toBeVisible();
 });
 
 test("copilot answers with citations and no raw dataset values", async ({ page }) => {
@@ -44,8 +44,8 @@ test("copilot answers with citations and no raw dataset values", async ({ page }
   const answer = page.getByTestId("copilot-answer");
   await expect(answer).toBeVisible();
   await expect(answer.getByText("Citations:")).toBeVisible();
-  await expect(answer.locator("code").first()).toBeVisible();
+  await expect(answer.getByText("›").first()).toBeVisible();
   const text = await answer.innerText();
   expect(text).not.toMatch(RAW_ROW);
-  expect(text).toContain("Portfolio governance assistant");
+  expect(text).toContain("Not an approval authority");
 });

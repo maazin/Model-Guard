@@ -3,7 +3,7 @@ import { RAW_ROW } from "./helpers";
 
 test("portfolio and every page render without borrower-level data", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Portfolio overview" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Credit-risk models" })).toBeVisible();
   await expect(page.getByRole("link", { name: "pd-credit-v1.0.0" })).toBeVisible();
   for (const suffix of ["", "/validation", "/monitoring", "/governance", "/executive"]) {
     await page.goto(`/versions/pd-credit-v1.0.0${suffix}`);

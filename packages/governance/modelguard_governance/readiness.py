@@ -78,9 +78,9 @@ def _doc_missing(ev: ReadinessEvidence, doc_type: DocumentType, label: str) -> l
         return [f"{label} document is missing"]
     out: list[str] = []
     if doc.get("status") != "complete":
-        out.append(f"{label} document status is '{doc.get('status')}', expected 'complete'")
+        out.append(f"{label} document has not been marked complete (currently '{doc.get('status')}')")
     gaps = missing_sections(doc_type, doc.get("content", ""))
-    out.extend(f"{label}: section '{s}' missing or still a placeholder" for s in gaps)
+    out.extend(f"{label}: the section '{s}' has not been written" for s in gaps)
     return out
 
 
@@ -88,7 +88,7 @@ def check_dataset_lineage(ev: ReadinessEvidence) -> CheckResult:
     missing: list[str] = []
     src = ev.source or {}
     if not ev.source:
-        missing.append("data source not registered")
+        missing.append("no data source has been registered")
     else:
         for key, label in (
             ("id", "source ID"),
@@ -100,12 +100,12 @@ def check_dataset_lineage(ev: ReadinessEvidence) -> CheckResult:
                 missing.append(f"{label} missing on data source")
     snap = ev.snapshot or {}
     if not ev.snapshot:
-        missing.append("data snapshot not linked to model version")
+        missing.append("no data snapshot is linked to this version")
     else:
         if not snap.get("checksum"):
-            missing.append("snapshot checksum missing")
+            missing.append("the data snapshot has no checksum")
         if snap.get("quality_status") not in ("pass", "warn"):
-            missing.append(f"data-quality run status is '{snap.get('quality_status')}'")
+            missing.append(f"the data-quality check did not pass (result: {snap.get('quality_status')})")
     missing.extend(_doc_missing(ev, DocumentType.DATA_LINEAGE, "Data lineage / dictionary"))
     return _result("dataset_lineage", missing, {"source": src.get("id"), "snapshot_checksum": snap.get("checksum")})
 
@@ -117,7 +117,9 @@ def check_model_documentation(ev: ReadinessEvidence) -> CheckResult:
 
 
 def check_validation(ev: ReadinessEvidence) -> CheckResult:
-    missing = [f"holdout metric '{m}' not recorded" for m in REQUIRED_HOLDOUT_METRICS if m not in ev.holdout_metrics]
+    missing = [
+        f"test result '{m}' has not been recorded" for m in REQUIRED_HOLDOUT_METRICS if m not in ev.holdout_metrics
+    ]
     missing += [
         f"validation artifact '{a}' missing" for a in REQUIRED_VALIDATION_ARTIFACTS if a not in ev.validation_artifacts
     ]
@@ -133,15 +135,15 @@ def check_monitoring_plan(ev: ReadinessEvidence) -> CheckResult:
     missing = _doc_missing(ev, DocumentType.MONITORING_PLAN, "Monitoring plan")
     plan = ev.monitoring_plan or {}
     if not ev.has_baseline_distributions:
-        missing.append("baseline feature/score distributions not stored for PSI")
+        missing.append("reference distributions for drift checks have not been stored")
     if not plan.get("psi_bins"):
-        missing.append("monitoring plan front matter lacks 'psi_bins'")
+        missing.append("the monitoring plan does not say how many bins the drift check uses")
     thresholds = plan.get("alert_thresholds") or {}
     for key in ("psi_investigate", "psi_alert", "auc_drop"):
         if key not in thresholds:
-            missing.append(f"monitoring plan alert threshold '{key}' not set")
+            missing.append(f"the monitoring plan does not set the alert threshold '{key}'")
     if not plan.get("owner"):
-        missing.append("monitoring plan has no owner")
+        missing.append("the monitoring plan names no owner")
     return _result("monitoring_plan", missing, {"plan": plan})
 
 
@@ -161,23 +163,23 @@ def check_fairness_assessment(ev: ReadinessEvidence) -> CheckResult:
 def check_controls(ev: ReadinessEvidence) -> CheckResult:
     missing = _doc_missing(ev, DocumentType.CONTROL_MATRIX, "Risk-control matrix")
     if len(ev.controls) < MIN_CONTROLS:
-        missing.append(f"control matrix has {len(ev.controls)} controls; at least {MIN_CONTROLS} required")
+        missing.append(f"only {len(ev.controls)} controls are recorded; at least {MIN_CONTROLS} required")
     for c in ev.controls:
         name = c.get("control_name", "<unnamed>")
         for f in REQUIRED_CONTROL_FIELDS:
             if not c.get(f):
-                missing.append(f"control '{name}' missing {f}")
+                missing.append(f"control '{name}' has no {f.replace('_', ' ')}")
         if c.get("status") and c["status"] not in COMPLETE_CONTROL_STATUSES:
-            missing.append(f"control '{name}' status '{c['status']}' is not implemented/tested")
+            missing.append(f"control '{name}' is still '{c['status']}', not implemented or tested")
     return _result("controls", missing, {"controls": [c.get("control_name") for c in ev.controls]})
 
 
 def check_security(ev: ReadinessEvidence) -> CheckResult:
     missing: list[str] = []
     if ev.security.get("secrets_scan") != "pass":
-        missing.append(f"secrets scan status is '{ev.security.get('secrets_scan')}'")
+        missing.append(f"the secrets scan has not passed (result: {ev.security.get('secrets_scan')})")
     if ev.security.get("raw_rows_in_logs", True):
-        missing.append("raw borrower-like rows detected (or not verified absent) in logs/copilot prompts")
+        missing.append("borrower-level records were found, or not verified absent, in documents or prompts")
     return _result("security", missing, dict(ev.security))
 
 
@@ -185,14 +187,14 @@ def check_sign_off(ev: ReadinessEvidence) -> CheckResult:
     missing: list[str] = []
     so = ev.signoff or {}
     if not ev.signoff:
-        missing.append("no reviewer decision recorded")
+        missing.append("no reviewer decision has been recorded")
     else:
         if so.get("decision") != "approve":
-            missing.append(f"latest reviewer decision is '{so.get('decision')}'")
+            missing.append(f"the latest reviewer decision was '{so.get('decision')}', not approval")
         if not so.get("rationale"):
-            missing.append("reviewer rationale missing")
+            missing.append("the reviewer gave no reason")
         if not so.get("reviewer_id"):
-            missing.append("reviewer identity missing")
+            missing.append("the reviewer is not identified")
     return _result("sign_off", missing, so)
 
 

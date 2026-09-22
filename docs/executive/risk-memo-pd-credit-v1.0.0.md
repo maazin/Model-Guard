@@ -14,7 +14,7 @@ Do not extend use; investigate high-severity drift alerts and consider re-traini
 
 ## What the model is
 
-Probability-of-default scoring on a licensed/synthetic loan-performance dataset. Portfolio simulation; not a lending decision engine. Data source `synthetic-loans-v1`. Registered type **champion** (gradient-boosted trees) compared against a logistic-regression baseline on a temporal holdout of 1301 loans.
+Estimate the probability that a consumer instalment loan defaults within the observation window so that portfolio risk can be ranked and monitored. Portfolio simulation only; not used for any real lending decision. Data source `synthetic-loans-v1`. Registered type **champion** (gradient-boosted trees) compared against a logistic-regression baseline on a temporal holdout of 1301 loans.
 
 ## Current health: **at risk** (state MONITORING)
 
@@ -51,9 +51,10 @@ Fairness diagnostics on the `fairness_group` grouping field: selection-rate rati
 
 ## Limits
 
-- Not credit advice; illustrative threshold only.
-- Synthetic or public sample data; results do not transfer to a real book.
-- Fairness diagnostics are informational, not a legal determination.
+- Not credit advice: the cut-off shown is illustrative, not a lending policy.
+- Built on a public sample or synthetic data; results do not transfer to a real portfolio.
+- Fairness figures are for discussion, not a legal determination.
+- Approval here is a simulated governance step, not regulatory compliance.
 
 ## Recommended next action
 

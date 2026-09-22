@@ -76,7 +76,7 @@ def test_missing_source_blocks_lineage():
     ev = complete_evidence()
     ev.source = None
     f = _failing(evaluate(ev))
-    assert "dataset_lineage" in f and "data source not registered" in f["dataset_lineage"].missing
+    assert "dataset_lineage" in f and "no data source has been registered" in f["dataset_lineage"].missing
 
 
 def test_failed_quality_run_blocks_lineage():
@@ -112,7 +112,7 @@ def test_missing_metric_blocks_validation(metric):
     ev = complete_evidence()
     ev.holdout_metrics.discard(metric)
     f = _failing(evaluate(ev))
-    assert f"holdout metric '{metric}' not recorded" in f["validation"].missing
+    assert f"test result '{metric}' has not been recorded" in f["validation"].missing
 
 
 @pytest.mark.parametrize("artifact", ["calibration", "threshold_analysis", "feature_importance", "hypothesis_test"])
@@ -126,7 +126,7 @@ def test_missing_baseline_distributions_blocks_monitoring():
     ev = complete_evidence()
     ev.has_baseline_distributions = False
     f = _failing(evaluate(ev))
-    assert any("baseline" in m for m in f["monitoring_plan"].missing)
+    assert any("reference distributions" in m for m in f["monitoring_plan"].missing)
 
 
 def test_missing_threshold_blocks_monitoring():
@@ -160,7 +160,7 @@ def test_control_missing_owner_blocks():
     ev = complete_evidence()
     ev.controls[0]["owner"] = ""
     f = _failing(evaluate(ev))
-    assert "control 'c0' missing owner" in f["controls"].missing
+    assert "control 'c0' has no owner" in f["controls"].missing
 
 
 def test_control_not_implemented_blocks():
